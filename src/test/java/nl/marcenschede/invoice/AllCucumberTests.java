@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         tags = "~@not_implemented",
         format = {"pretty", "html:target/cucumber"},
-        glue = {"app.domain.invoice"},
+        glue = {"nl.marcenschede.invoice.glue"},
         features = "classpath:features/",
         strict = true
 )
