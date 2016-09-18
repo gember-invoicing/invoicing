@@ -1,6 +1,6 @@
 package nl.marcenschede.invoice;
 
-import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
+import nl.marcenschede.invoice.calculators.InvoiceCalculationsHelper;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 
@@ -65,6 +65,7 @@ public class InvoiceImpl implements Invoice {
         this.productDestination = productDestination;
     }
 
+    @Override
     public List<InvoiceLine> getInvoiceLines() {
         return invoiceLines;
     }
@@ -87,43 +88,20 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getTotalInvoiceAmountInclVat() {
-
-        validateValidity();
-
-        return invoiceLines.stream()
-                .map(InvoiceLine::getAmountSummary)
-                .map(VatAmountSummary::getAmountInclVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+        InvoiceCalculationsHelper calculationsHelper = new InvoiceCalculationsHelper(this);
+        return calculationsHelper.getTotalInvoiceAmountInclVat();
     }
 
     @Override
     public BigDecimal getTotalInvoiceAmountExclVat() {
-        validateValidity();
-
-        return invoiceLines.stream()
-                .map(InvoiceLine::getAmountSummary)
-                .map(VatAmountSummary::getAmountExclVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+        InvoiceCalculationsHelper calculationsHelper = new InvoiceCalculationsHelper(this);
+        return calculationsHelper.getTotalInvoiceAmountExclVat();
     }
 
     @Override
     public BigDecimal getInvoiceTotalVat() {
-        validateValidity();
-
-        return invoiceLines.stream()
-                .map(InvoiceLine::getAmountSummary)
-                .map(VatAmountSummary::getAmountVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
-    }
-
-    private void validateValidity() {
-        validateRegistrationInOriginCountry();
-    }
-
-    private void validateRegistrationInOriginCountry() {
-        String originCountry = CountryOfOriginHelper.getOriginCountry(this);
-        if(!getCompany().hasVatRegistrationFor(originCountry))
-            throw new NoRegistrationInOriginCountryException();
+        InvoiceCalculationsHelper calculationsHelper = new InvoiceCalculationsHelper(this);
+        return calculationsHelper.getInvoiceTotalVat();
     }
 
     @Override

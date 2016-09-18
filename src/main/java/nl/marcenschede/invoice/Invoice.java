@@ -24,6 +24,8 @@ public interface Invoice {
 
     void setProductDestinationCountry(Optional<String> productDestination);
 
+    List<InvoiceLine> getInvoiceLines();
+
     void setInvoiceLines(List<InvoiceLine> invoiceLines);
 
     void setProductCategory(Optional<ProductCategory> productCategory);
@@ -36,5 +38,5 @@ public interface Invoice {
 
     BigDecimal getInvoiceTotalVat();
 
-    public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff();
+    Map<VatPercentage, VatAmountSummary> getVatPerVatTariff();
 }

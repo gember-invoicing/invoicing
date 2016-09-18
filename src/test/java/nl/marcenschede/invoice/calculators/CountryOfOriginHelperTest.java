@@ -59,6 +59,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public List<InvoiceLine> getInvoiceLines() {
+                return null;
+            }
+
+            @Override
             public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
 
             }
@@ -169,6 +174,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public List<InvoiceLine> getInvoiceLines() {
+                return null;
+            }
+
+            @Override
             public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
 
             }
@@ -276,6 +286,11 @@ public class CountryOfOriginHelperTest {
             @Override
             public void setProductDestinationCountry(Optional<String> productDestination) {
 
+            }
+
+            @Override
+            public List<InvoiceLine> getInvoiceLines() {
+                return null;
             }
 
             @Override
