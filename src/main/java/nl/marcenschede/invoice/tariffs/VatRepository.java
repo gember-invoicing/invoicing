@@ -1,6 +1,7 @@
 package nl.marcenschede.invoice.tariffs;
 
 import nl.marcenschede.invoice.Company;
+import nl.marcenschede.invoice.CountryOfOriginHelper;
 import nl.marcenschede.invoice.Invoice;
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,34 +45,9 @@ public class VatRepository {
     }
 
     public VatPercentage findByOriginCountryTariffAndDate(Invoice invoice, VatTariff vatTariff, LocalDate referenceDate) {
-        String originCountry = getOriginCountry(invoice);
+        String originCountry = CountryOfOriginHelper.getOriginCountry(invoice);
         return findByCountryTariffAndDate(originCountry, vatTariff, referenceDate);
     }
-
-    private String getOriginCountry(Invoice invoice) {
-        final Optional<String> invoiceOriginCountry = invoice.getCountryOfOrigin();
-        return invoiceOriginCountry.orElseGet(() -> getCompanyPrimaryCountryAndCheckIfNotBlank(invoice));
-    }
-
-    private String getCompanyPrimaryCountryAndCheckIfNotBlank(Invoice invoice) {
-        String companyPrimaryCountry = getCompanyDefaultCountry(invoice);
-
-        if(StringUtils.isBlank(companyPrimaryCountry))
-            throw new NoOriginCountrySetException();
-
-        return companyPrimaryCountry;
-    }
-
-    private String getCompanyDefaultCountry(Invoice invoice) {
-        final Company company = invoice.getCompany();
-        final String primaryCountryIso = company.getPrimaryCountryIso();
-
-        return primaryCountryIso;
-    }
-
-    public class NoOriginCountrySetException extends RuntimeException {
-    }
-
 
     private VatPercentage findByCountryTariffAndDate(String country, VatTariff vatTariff, LocalDate referenceDate) {
         Optional<VatPercentage> vatPercentage = getValidVatPercentage(country, vatTariff, referenceDate);

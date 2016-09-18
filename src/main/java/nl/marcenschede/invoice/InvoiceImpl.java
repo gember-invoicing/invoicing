@@ -86,6 +86,9 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getTotalInvoiceAmountInclVat() {
+
+        validateValidity();
+
         return invoiceLines.stream()
                 .map(InvoiceLine::getAmountSummary)
                 .map(VatAmountSummary::getAmountInclVat)
@@ -94,6 +97,8 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getTotalInvoiceAmountExclVat() {
+        validateValidity();
+
         return invoiceLines.stream()
                 .map(InvoiceLine::getAmountSummary)
                 .map(VatAmountSummary::getAmountExclVat)
@@ -102,11 +107,22 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getInvoiceTotalVat() {
+        validateValidity();
 
         return invoiceLines.stream()
                 .map(InvoiceLine::getAmountSummary)
                 .map(VatAmountSummary::getAmountVat)
                 .reduce(new BigDecimal("0.00"), BigDecimal::add);
+    }
+
+    private void validateValidity() {
+        validateRegistrationInOriginCountry();
+    }
+
+    private void validateRegistrationInOriginCountry() {
+        String originCountry = CountryOfOriginHelper.getOriginCountry(this);
+        if(!getCompany().hasVatRegistrationFor(originCountry))
+            throw new NoRegistrationInOriginCountryException();
     }
 
     @Override
@@ -144,5 +160,8 @@ public class InvoiceImpl implements Invoice {
         return invoiceLines.stream()
                 .map(InvoiceLine::getAmountSummary)
                 .reduce(new VatAmountSummary(percentage, ZERO, ZERO, ZERO), VatAmountSummary::add);
+    }
+
+    public static class NoRegistrationInOriginCountryException extends RuntimeException {
     }
 }

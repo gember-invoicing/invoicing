@@ -250,7 +250,7 @@ public class Glue {
     public void the_total_amount_including_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
         try {
             invoice.getTotalInvoiceAmountInclVat();
-        } catch (VatRepository.NoOriginCountrySetException nocs) {
+        } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
 
@@ -261,7 +261,7 @@ public class Glue {
     public void the_total_amount_excluding_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
         try {
             invoice.getTotalInvoiceAmountExclVat();
-        } catch (VatRepository.NoOriginCountrySetException nocs) {
+        } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
 
@@ -272,7 +272,7 @@ public class Glue {
     public void the_total_amount_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
         try {
             invoice.getInvoiceTotalVat();
-        } catch (VatRepository.NoOriginCountrySetException nocs) {
+        } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
 
@@ -311,4 +311,38 @@ public class Glue {
 
         fail();
     }
+
+    @Then("^The total amount including VAT request throws an no registration in origin country exception$")
+    public void the_total_amount_including_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountInclVat();
+        } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an no registration in origin country exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountExclVat();
+        } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount VAT request throws an no registration in origin country exception$")
+    public void the_total_amount_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalVat();
+        } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
+            return;
+        }
+
+        fail();
+    }
+
 }
