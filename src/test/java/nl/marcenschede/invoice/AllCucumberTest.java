@@ -12,5 +12,5 @@ import org.junit.runner.RunWith;
         features = "classpath:features/",
         strict = true
 )
-public class AllCucumberTests {
+public class AllCucumberTest {
 }

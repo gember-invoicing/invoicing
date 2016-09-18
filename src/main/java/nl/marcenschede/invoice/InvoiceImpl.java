@@ -1,6 +1,5 @@
-package nl.marcenschede.invoice.glue;
+package nl.marcenschede.invoice;
 
-import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 
@@ -15,7 +14,7 @@ public class InvoiceImpl implements Invoice {
     private Company company;
     private Customer customer;
     private InvoiceType invoiceType;
-    private Optional<String> productOrigin;
+    private Optional<String> countryOfOrigin;
     private Optional<String> productDestination;
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
 
@@ -38,9 +37,15 @@ public class InvoiceImpl implements Invoice {
     }
 
     @Override
-    public void setCountryOfOrigin(Optional<String> productOrigin) {
+    public Optional<String> getCountryOfOrigin() {
 
-        this.productOrigin = productOrigin;
+        return countryOfOrigin;
+    }
+
+    @Override
+    public void setCountryOfOrigin(Optional<String> countryOfOrigin) {
+
+        this.countryOfOrigin = countryOfOrigin;
     }
 
     @Override
@@ -116,7 +121,7 @@ public class InvoiceImpl implements Invoice {
         return this.getInvoiceLines().stream()
                 .collect(Collectors.groupingBy(
                         invoiceLine -> vatRepository.findByTariffAndDate(
-                                "NL",
+                                this.countryOfOrigin.get(),
                                 invoiceLine.getVatTariff(),
                                 invoiceLine.getVatReferenceDate())));
     }

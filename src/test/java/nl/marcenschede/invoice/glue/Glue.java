@@ -32,7 +32,6 @@ public class Glue {
     @Given("^A company in \"([^\"]*)\" with vat calculation policy is \"([^\"]*)\"$")
     public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String primaryCountry,
                                                                        final String vatPolicy) throws Throwable {
-
         company = new Company() {
             private Map<String, String> vatRegistrations = new HashMap<>();
 
@@ -78,6 +77,7 @@ public class Glue {
 
         InvoiceLine invoiceLine = new InvoiceLine() {
             private final VatRepository vatRepository = new VatRepository();
+            private Invoice invoice;
 
             @Override
             public BigDecimal getLineAmount() {
@@ -109,7 +109,7 @@ public class Glue {
 
             @Override
             public void setInvoice(Invoice invoice) {
-
+                this.invoice = invoice;
             }
 
             @Override
@@ -148,7 +148,7 @@ public class Glue {
             private VatPercentage getVatPercentage() {
 
                 return vatRepository.findByTariffAndDate(
-                                    "NL", getVatTariff(), LocalDate.parse(referenceDate));
+                                    invoice.getCountryOfOrigin().get(), getVatTariff(), LocalDate.parse(referenceDate));
             }
 
         };

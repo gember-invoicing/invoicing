@@ -1,10 +1,6 @@
 package nl.marcenschede.invoice.tariffs;
 
-import nl.marcenschede.invoice.VatAmountSummary;
-
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class VatPercentage {
