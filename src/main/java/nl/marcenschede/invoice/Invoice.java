@@ -8,7 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface Invoice {
+    Company getCompany();
+
     void setCompany(Company company);
+
+    Customer getCustomer();
 
     void setCustomer(Customer customer);
 

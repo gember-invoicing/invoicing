@@ -62,6 +62,41 @@ Feature: As a salesman I want to sell and invoice to local B2C customers
       | 327.00             | 300.75           | 26.25          | 0.00          | 0.00      |
 
   @not_implemented
+  Scenario: A good is delivered from the companies default country
+
+  @not_implemented
+  Scenario: A good is delivered from the companies default country and no default country is set
+
+  Scenario Outline: A good is delivered to the customer default country
+    Given A customer without a validated VAT id and default country is "NL"
+    And Country of destination is "NL"
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "<totalAmountInclVat>"
+    And The total amount excluding VAT is "<totalAmountExVat>"
+    And The total amount VAT is "<totalAmountVat>"
+    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>"
+
+  Examples:
+  | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
+  | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+
+  Scenario Outline: A good is delivered to the customer default country and no default country is set
+    Given A customer without a validated VAT id and default country is ""
+    And Country of destination is "NL"
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT request throws an no origin country set exception
+    Then The total amount excluding VAT request throws an no origin country set exception
+    Then The total amount VAT request throws an no origin country set exception
+
+  Examples:
+  | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
+  | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+
+
+  @not_implemented
+  Scenario: A good is created for an unknown vat percentage
+
+  @not_implemented
   Scenario: Deliver goods in a secondary EU country without vat registration to a local B2C customer
     #Levering BE > BE; geen vat registratie in BE
     Given A customer without a validated VAT id and default country is "BE"

@@ -19,9 +19,19 @@ public class InvoiceImpl implements Invoice {
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
 
     @Override
+    public Company getCompany() {
+        return company;
+    }
+
+    @Override
     public void setCompany(Company company) {
 
         this.company = company;
+    }
+
+    @Override
+    public Customer getCustomer() {
+        return customer;
     }
 
     @Override
@@ -118,10 +128,11 @@ public class InvoiceImpl implements Invoice {
     }
 
     private Map<VatPercentage, List<InvoiceLine>> getMapOfPercentages(VatRepository vatRepository) {
+
         return this.getInvoiceLines().stream()
                 .collect(Collectors.groupingBy(
-                        invoiceLine -> vatRepository.findByTariffAndDate(
-                                this.countryOfOrigin.get(),
+                        invoiceLine -> vatRepository.findByOriginCountryTariffAndDate(
+                                this,
                                 invoiceLine.getVatTariff(),
                                 invoiceLine.getVatReferenceDate())));
     }

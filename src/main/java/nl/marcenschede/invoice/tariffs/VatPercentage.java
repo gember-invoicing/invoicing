@@ -19,57 +19,6 @@ public class VatPercentage {
         this.percentage = percentage;
     }
 
-//    public VatAmountSummary createVatAmountInfo(Boolean includingVatInvoice, BigDecimal amountExclVat, BigDecimal amountInclVat) {
-//
-//        if(includingVatInvoice) {
-//            BigDecimal vatAmount = getVatAmountFromAmountInclVat(amountInclVat, percentage);
-//
-//            return new VatAmountSummary(this, vatAmount, amountInclVat.subtract(vatAmount), amountInclVat);
-//        } else {
-//            BigDecimal vatAmount = getVatAmountFromAmountExclVat(amountExclVat, percentage);
-//
-//            return new VatAmountSummary(this, vatAmount, amountExclVat, amountExclVat.add(vatAmount));
-//
-//        }
-//    }
-//
-//    public static BigDecimal getVatAmountFromAmountExclVat(BigDecimal amountExclVat, BigDecimal percentage) {
-//        return amountExclVat
-//                        .multiply(
-//                                percentage.divide(BigDecimal.valueOf(100)))
-//                        .setScale(2, RoundingMode.HALF_EVEN);
-//    }
-//
-//    public static BigDecimal getVatAmountFromAmountInclVat(BigDecimal amountInclVat, BigDecimal percentage) {
-//
-//        if(percentage.compareTo(BigDecimal.ZERO) == 0)
-//            return new BigDecimal("0.00");
-//
-//        return amountInclVat
-//                        .divide(
-//                                percentage.add(BigDecimal.valueOf(100))
-//                                        .divide(percentage,
-//                                                new MathContext(10, RoundingMode.HALF_EVEN)),
-//                                2,
-//                                RoundingMode.HALF_EVEN);
-//    }
-
-//    public String getIsoCountryCode() {
-//        return isoCountryCode;
-//    }
-//
-//    public VatTariff getVatTariff() {
-//        return vatTariff;
-//    }
-//
-//    public LocalDate getStartDate() {
-//        return startDate;
-//    }
-//
-//    public LocalDate getEndDate() {
-//        return endDate;
-//    }
-//
     public BigDecimal getPercentage() {
         return percentage;
     }

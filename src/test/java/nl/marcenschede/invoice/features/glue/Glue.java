@@ -1,8 +1,9 @@
-package nl.marcenschede.invoice.glue;
+package nl.marcenschede.invoice.features.glue;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import javafx.geometry.NodeOrientation;
 import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.calculators.VatCalculator;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
@@ -16,6 +17,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class Glue {
 
@@ -147,8 +152,8 @@ public class Glue {
 
             private VatPercentage getVatPercentage() {
 
-                return vatRepository.findByTariffAndDate(
-                                    invoice.getCountryOfOrigin().get(), getVatTariff(), LocalDate.parse(referenceDate));
+                return vatRepository.findByOriginCountryTariffAndDate(
+                                    invoice, getVatTariff(), LocalDate.parse(referenceDate));
             }
 
         };
@@ -210,7 +215,7 @@ public class Glue {
 
         BigDecimal totalInvoiceAmountInclVat = invoice.getTotalInvoiceAmountInclVat();
 
-        Assert.assertThat(totalInvoiceAmountInclVat, Matchers.is(new BigDecimal(expectedTotalAmountIncludingVat)));
+        assertThat(totalInvoiceAmountInclVat, is(new BigDecimal(expectedTotalAmountIncludingVat)));
     }
 
 
@@ -218,7 +223,7 @@ public class Glue {
     public void the_total_amount_excluding_VAT_is(String expectedTotalAmountExclVat) throws Throwable {
         assert invoice != null;
 
-        Assert.assertThat(invoice.getTotalInvoiceAmountExclVat(), Matchers.is(new BigDecimal(expectedTotalAmountExclVat)));
+        assertThat(invoice.getTotalInvoiceAmountExclVat(), is(new BigDecimal(expectedTotalAmountExclVat)));
     }
 
     @Then("^The total amount VAT is \"([^\"]*)\"$")
@@ -227,7 +232,7 @@ public class Glue {
 
         BigDecimal invoiceTotalVat = invoice.getInvoiceTotalVat();
 
-        Assert.assertThat(invoiceTotalVat, Matchers.is(new BigDecimal(expectedTotalAmountVat)));
+        assertThat(invoiceTotalVat, is(new BigDecimal(expectedTotalAmountVat)));
     }
 
     @Then("^The VAT amount for percentage \"([^\"]*)\" is \"([^\"]*)\"$")
@@ -240,8 +245,40 @@ public class Glue {
                         .map(entry -> entry.getValue().getAmountVat())
                         .findFirst();
 
-        Assert.assertThat(actualAmount.isPresent(), Matchers.is(true));
-        Assert.assertThat(actualAmount.get(), Matchers.is(new BigDecimal(expectedAmount)));
+        assertThat(actualAmount.isPresent(), is(true));
+        assertThat(actualAmount.get(), is(new BigDecimal(expectedAmount)));
     }
 
+    @Then("^The total amount including VAT request throws an no origin country set exception$")
+    public void the_total_amount_including_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountInclVat();
+        } catch (VatRepository.NoOriginCountrySetException nocs) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an no origin country set exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountExclVat();
+        } catch (VatRepository.NoOriginCountrySetException nocs) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount VAT request throws an no origin country set exception$")
+    public void the_total_amount_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalVat();
+        } catch (VatRepository.NoOriginCountrySetException nocs) {
+            return;
+        }
+
+        fail();
+    }
 }

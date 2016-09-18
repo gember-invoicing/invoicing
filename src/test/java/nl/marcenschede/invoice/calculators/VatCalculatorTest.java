@@ -1,4 +1,4 @@
-package nl.marcenschede.invoice;
+package nl.marcenschede.invoice.calculators;
 
 import nl.marcenschede.invoice.calculators.VatCalculator;
 import org.hamcrest.Matchers;
