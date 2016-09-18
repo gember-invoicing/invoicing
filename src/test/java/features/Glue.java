@@ -175,6 +175,22 @@ public class Glue {
 
     }
 
+    @Given("^A customer with VAT id \"([^\"]*)\" and default country is \"([^\"]*)\"$")
+    public void a_customer_with_VAT_id_and_default_country_is(String vatId, String defaultCountry) throws Throwable {
+
+        customer = new Customer() {
+            @Override
+            public Optional<String> getDefaultCountry() {
+                return Optional.ofNullable(StringUtils.isEmpty(defaultCountry) ? null : defaultCountry);
+            }
+
+            @Override
+            public Optional<String> getEuTaxId() {
+                return Optional.of(vatId);
+            }
+        };
+    }
+
     @Given("^Country of origin is \"([^\"]*)\"$")
     public void country_of_origin_is(String countryCode) throws Throwable {
 
