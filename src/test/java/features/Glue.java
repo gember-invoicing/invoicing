@@ -278,4 +278,37 @@ public class Glue {
 
         fail();
     }
+
+    @Then("^The total amount including VAT request throws an vat percentage not found exception$")
+    public void the_total_amount_including_VAT_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountInclVat();
+        } catch (VatRepository.VatPercentageNotFoundException nocs) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an vat percentage not found exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountExclVat();
+        } catch (VatRepository.VatPercentageNotFoundException nocs) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount VAT request throws an vat percentage not found exception$")
+    public void the_total_amount_VAT_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalVat();
+        } catch (VatRepository.VatPercentageNotFoundException nocs) {
+            return;
+        }
+
+        fail();
+    }
 }

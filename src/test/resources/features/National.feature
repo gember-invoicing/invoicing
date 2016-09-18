@@ -78,12 +78,21 @@ Feature: As a salesman I want to sell and invoice to local B2C customers
     Then The total amount excluding VAT request throws an no origin country set exception
     Then The total amount VAT request throws an no origin country set exception
 
+  Scenario: A good is created for an unknown vat percentage
+    Given A customer without a validated VAT id and default country is "NL"
+    And An invoiceline worth "121.00" euro "incl" VAT with "High" vat level and referencedate is "1950-01-01"
+    And Country of origin is "NL"
+    And Country of destination is "NL"
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT request throws an vat percentage not found exception
+    Then The total amount excluding VAT request throws an vat percentage not found exception
+    Then The total amount VAT request throws an vat percentage not found exception
+
 #  Scenario: A good is delivered to the customers default country
 
 #  Scenario: A good is delivered to the customer default country and no default country is set
 
 
-#  Scenario: A good is created for an unknown vat percentage
 
 #  @not_implemented
 #  Scenario: Deliver goods in a secondary EU country without vat registration to a local B2C customer
