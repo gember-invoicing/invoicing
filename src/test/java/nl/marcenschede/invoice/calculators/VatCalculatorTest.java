@@ -1,12 +1,11 @@
 package nl.marcenschede.invoice.calculators;
 
-import nl.marcenschede.invoice.calculators.VatCalculator;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class VatCalculatorTest {
 
@@ -50,6 +49,13 @@ public class VatCalculatorTest {
 
         BigDecimal actualValue =
                 VatCalculator.calculateVatFromLineAmountInclVat(new BigDecimal("121.00"), new BigDecimal("21.00"));
+        assertThat(actualValue, Matchers.is(new BigDecimal("21.00")));
+    }
+
+    @Test
+    public void shouldCalculateFromAmountExclVat() {
+        BigDecimal actualValue =
+                VatCalculator.calculateVatFromLineAmountExclVat(new BigDecimal("100.00"), new BigDecimal("21.00"));
         assertThat(actualValue, Matchers.is(new BigDecimal("21.00")));
     }
 }

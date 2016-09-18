@@ -26,6 +26,14 @@ public class VatCalculator {
         return base.multiply(factorA).divide(factorB, 2, BigDecimal.ROUND_HALF_UP);
     }
 
+    public static BigDecimal addVatToAmount(BigDecimal base, BigDecimal percentage) {
+        return base.multiply(calculateConversionFactor(percentage)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static BigDecimal calculateVatFromLineAmountExclVat(BigDecimal base, BigDecimal percentage) {
+        return base.multiply(percentage).divide(HUNDRED, 2, RoundingMode.HALF_UP);
+    }
+
     private static BigDecimal calculateConversionFactor(BigDecimal vatPercentage) {
         return BigDecimal.ONE.add(vatPercentage.divide(HUNDRED));
     }

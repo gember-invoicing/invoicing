@@ -122,7 +122,7 @@ public class Glue {
 
             private BigDecimal getLineAmountInclVat() {
                 return getInvoiceLineVatType() == InvoiceLineVatType.INCLUDING_VAT ?
-                        new BigDecimal(lineAmount) : new BigDecimal("0.00");
+                        new BigDecimal(lineAmount) : calculateLineAmountInclVat();
             }
 
             private BigDecimal getLineAmountExclVat() {
@@ -132,14 +132,23 @@ public class Glue {
 
             private BigDecimal getVatAmount() {
                 return getInvoiceLineVatType() == InvoiceLineVatType.EXCLUDING_VAT?
-                        new BigDecimal("0.00") : calculateVatFromLineAmountInclVat();
+                        calculateVatFromLineAmountExclVat() : calculateVatFromLineAmountInclVat();
 
             }
 
-            private BigDecimal calculateVatFromLineAmountInclVat() {
+            private BigDecimal calculateVatFromLineAmountExclVat() {
+                BigDecimal percentage = getVatPercentage().getPercentage();
+                return VatCalculator.calculateVatFromLineAmountExclVat(new BigDecimal(lineAmount), percentage);
+            }
 
+            private BigDecimal calculateVatFromLineAmountInclVat() {
                 BigDecimal percentage = getVatPercentage().getPercentage();
                 return VatCalculator.calculateVatFromLineAmountInclVat(new BigDecimal(lineAmount), percentage);
+            }
+
+            private BigDecimal calculateLineAmountInclVat() {
+                BigDecimal percentage = getVatPercentage().getPercentage();
+                return VatCalculator.addVatToAmount(new BigDecimal(lineAmount), percentage);
             }
 
             private BigDecimal calculateLineAmountExclVat() {
