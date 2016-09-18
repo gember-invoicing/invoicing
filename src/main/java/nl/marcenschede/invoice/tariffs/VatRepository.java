@@ -1,7 +1,8 @@
 package nl.marcenschede.invoice.tariffs;
 
-import nl.marcenschede.invoice.Customer;
+import nl.marcenschede.invoice.Company;
 import nl.marcenschede.invoice.Invoice;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,13 +50,23 @@ public class VatRepository {
 
     private String getOriginCountry(Invoice invoice) {
         final Optional<String> invoiceOriginCountry = invoice.getCountryOfOrigin();
-        return invoiceOriginCountry.orElseGet(() -> getCompanyDefaultCountry(invoice));
+        return invoiceOriginCountry.orElseGet(() -> getCompanyPrimaryCountryAndCheckIfNotBlank(invoice));
+    }
+
+    private String getCompanyPrimaryCountryAndCheckIfNotBlank(Invoice invoice) {
+        String companyPrimaryCountry = getCompanyDefaultCountry(invoice);
+
+        if(StringUtils.isBlank(companyPrimaryCountry))
+            throw new NoOriginCountrySetException();
+
+        return companyPrimaryCountry;
     }
 
     private String getCompanyDefaultCountry(Invoice invoice) {
-        final Customer customer = invoice.getCustomer();
-        final Optional<String> customerDefaultCountry = customer.getDefaultCountry();
-        return customerDefaultCountry.orElseThrow(NoOriginCountrySetException::new);
+        final Company company = invoice.getCompany();
+        final String primaryCountryIso = company.getPrimaryCountryIso();
+
+        return primaryCountryIso;
     }
 
     public class NoOriginCountrySetException extends RuntimeException {

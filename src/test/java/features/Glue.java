@@ -1,17 +1,14 @@
-package nl.marcenschede.invoice.features.glue;
+package features;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import javafx.geometry.NodeOrientation;
 import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.calculators.VatCalculator;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 import nl.marcenschede.invoice.tariffs.VatTariff;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
