@@ -4,6 +4,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import nl.marcenschede.invoice.*;
+import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
 import nl.marcenschede.invoice.calculators.VatCalculator;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;

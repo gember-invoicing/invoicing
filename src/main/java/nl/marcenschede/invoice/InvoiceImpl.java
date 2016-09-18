@@ -1,5 +1,6 @@
 package nl.marcenschede.invoice;
 
+import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 

@@ -1,6 +1,7 @@
-package nl.marcenschede.invoice;
+package nl.marcenschede.invoice.calculators;
 
-import nl.marcenschede.invoice.tariffs.VatRepository;
+import nl.marcenschede.invoice.Company;
+import nl.marcenschede.invoice.Invoice;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;

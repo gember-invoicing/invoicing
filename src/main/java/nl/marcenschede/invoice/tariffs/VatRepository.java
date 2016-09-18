@@ -1,9 +1,7 @@
 package nl.marcenschede.invoice.tariffs;
 
-import nl.marcenschede.invoice.Company;
-import nl.marcenschede.invoice.CountryOfOriginHelper;
 import nl.marcenschede.invoice.Invoice;
-import org.apache.commons.lang3.StringUtils;
+import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

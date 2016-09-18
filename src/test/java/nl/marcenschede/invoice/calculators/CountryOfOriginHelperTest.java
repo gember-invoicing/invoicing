@@ -1,5 +1,6 @@
-package nl.marcenschede.invoice;
+package nl.marcenschede.invoice.calculators;
 
+import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import org.junit.Test;
 
