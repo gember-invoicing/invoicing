@@ -125,7 +125,7 @@ public class Glue {
         customer = new Customer() {
             @Override
             public Optional<String> getDefaultCountry() {
-                return Optional.ofNullable(StringUtils.isEmpty(defaultCountry) ? null : defaultCountry);
+                return Optional.ofNullable(StringUtils.isBlank(defaultCountry) ? null : defaultCountry);
             }
 
             @Override
@@ -142,7 +142,7 @@ public class Glue {
         customer = new Customer() {
             @Override
             public Optional<String> getDefaultCountry() {
-                return Optional.ofNullable(StringUtils.isEmpty(defaultCountry) ? null : defaultCountry);
+                return Optional.ofNullable(StringUtils.isBlank(defaultCountry) ? null : defaultCountry);
             }
 
             @Override
@@ -320,6 +320,39 @@ public class Glue {
         try {
             invoice.getInvoiceTotalVat();
         } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount including VAT request throws an no destination country set exception$")
+    public void the_total_amount_including_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountInclVat();
+        } catch (CountryOfOriginHelper.NoDestinationCountrySetException e) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an no destination country set exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
+        try {
+            invoice.getTotalInvoiceAmountExclVat();
+        } catch (CountryOfOriginHelper.NoDestinationCountrySetException e) {
+            return;
+        }
+
+        fail();
+    }
+
+    @Then("^The total amount VAT request throws an no destination country set exception$")
+    public void the_total_amount_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalVat();
+        } catch (CountryOfOriginHelper.NoDestinationCountrySetException e) {
             return;
         }
 

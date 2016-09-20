@@ -58,6 +58,15 @@ Feature: As a salesman I want to deliver goods and services to customers in othe
       | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
       | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
 
+  Scenario: Invoice goods to a B2C customer in another EU country (BE > NL) and no destination is not given
+    Given the company has VAT id "BE0123456789B01" in "BE"
+    And A customer without a validated VAT id and default country is ""
+    And Country of origin is "BE"
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT request throws an no destination country set exception
+    And The total amount excluding VAT request throws an no destination country set exception
+    And The total amount VAT request throws an no destination country set exception
+
   Scenario Outline: Invoice goods to a customer in another EU country (NL > DE) and company has no registration in destination country
     Given A customer without a validated VAT id and default country is "NL"
     And Country of origin is "NL"
