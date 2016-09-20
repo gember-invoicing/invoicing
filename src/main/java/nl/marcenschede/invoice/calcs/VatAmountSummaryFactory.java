@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 public class VatAmountSummaryFactory {
 
-    public static Function<? super InvoiceLine, VatAmountSummary> create2(String originCountry) {
+    public static Function<? super InvoiceLine, VatAmountSummary> create(String originCountry) {
 
         return new Function<InvoiceLine, VatAmountSummary>() {
             @Override

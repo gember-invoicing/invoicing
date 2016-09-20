@@ -21,6 +21,8 @@ public abstract class InvoiceCalculationsHelper {
 
     public abstract BigDecimal getInvoiceTotalVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
+    public abstract String getVatDeclarationCountry();
+
     protected void validateValidity() {
         validateRegistrationInOriginCountry();
     }

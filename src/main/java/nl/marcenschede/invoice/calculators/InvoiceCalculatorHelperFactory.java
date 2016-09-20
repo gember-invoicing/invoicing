@@ -12,6 +12,6 @@ public class InvoiceCalculatorHelperFactory {
     }
 
     private static boolean isNational(Invoice invoice) {
-        return CountryOfOriginHelper.getOriginCountry(invoice).equals(invoice.getCountryOfDestination().get());
+        return CountryOfOriginHelper.getOriginCountry(invoice).equals(CountryOfOriginHelper.getDestinationCountry(invoice));
     }
 }

@@ -43,4 +43,9 @@ public class InvoiceNationalCalculationsHelper extends InvoiceCalculationsHelper
                 .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
+    @Override
+    public String getVatDeclarationCountry() {
+        return CountryOfOriginHelper.getOriginCountry(invoice);
+    }
+
 }

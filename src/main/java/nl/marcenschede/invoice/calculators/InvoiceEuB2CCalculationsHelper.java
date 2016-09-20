@@ -1,5 +1,6 @@
 package nl.marcenschede.invoice.calculators;
 
+import nl.marcenschede.invoice.Company;
 import nl.marcenschede.invoice.Invoice;
 import nl.marcenschede.invoice.InvoiceLine;
 import nl.marcenschede.invoice.VatAmountSummary;
@@ -30,24 +31,33 @@ public class InvoiceEuB2CCalculationsHelper extends InvoiceCalculationsHelper {
     public BigDecimal getTotalInvoiceAmountExclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
         validateValidity();
 
-//        return invoice.getInvoiceLines().stream()
-//                .map(InvoiceLine::getAmountSummary)
-//                .map(VatAmountSummary::getAmountExclVat)
-//                .reduce(new BigDecimal("0.00"), BigDecimal::add);
-
-        return ZERO;
+        return invoice.getInvoiceLines().stream()
+                .map(amountSummaryCalculator)
+                .map(VatAmountSummary::getAmountExclVat)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
     @Override
     public BigDecimal getInvoiceTotalVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
         validateValidity();
 
-//        return invoice.getInvoiceLines().stream()
-//                .map(InvoiceLine::getAmountSummary)
-//                .map(VatAmountSummary::getAmountVat)
-//                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+        return invoice.getInvoiceLines().stream()
+                .map(amountSummaryCalculator)
+                .map(VatAmountSummary::getAmountVat)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+    }
 
-        return ZERO;
+    @Override
+    public String getVatDeclarationCountry() {
+
+        String destinationCountry = CountryOfOriginHelper.getDestinationCountry(invoice);
+
+        Company company = invoice.getCompany();
+        Boolean companyHasRegistrationInDestinationCountry =
+                company.hasVatRegistrationFor(destinationCountry);
+
+        return companyHasRegistrationInDestinationCountry ?
+                destinationCountry : CountryOfOriginHelper.getOriginCountry(invoice);
     }
 
 }
