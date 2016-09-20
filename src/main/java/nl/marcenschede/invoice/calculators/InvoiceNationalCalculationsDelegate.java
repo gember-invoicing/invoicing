@@ -7,9 +7,9 @@ import nl.marcenschede.invoice.VatAmountSummary;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-public class InvoiceNationalCalculationsHelper extends InvoiceCalculationsHelper {
+public class InvoiceNationalCalculationsDelegate extends InvoiceCalculationsDelegate {
 
-    public InvoiceNationalCalculationsHelper(Invoice invoice) {
+    public InvoiceNationalCalculationsDelegate(Invoice invoice) {
         super(invoice);
     }
 

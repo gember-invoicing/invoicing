@@ -1,7 +1,7 @@
 package nl.marcenschede.invoice;
 
 import nl.marcenschede.invoice.calcs.VatAmountSummaryFactory;
-import nl.marcenschede.invoice.calculators.InvoiceCalculationsHelper;
+import nl.marcenschede.invoice.calculators.InvoiceCalculationsDelegate;
 import nl.marcenschede.invoice.calculators.InvoiceCalculatorHelperFactory;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
@@ -95,7 +95,7 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getTotalInvoiceAmountInclVat() {
-        InvoiceCalculationsHelper calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
+        InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
 
         Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
                 VatAmountSummaryFactory.create(calculationsHelper.getVatDeclarationCountry());
@@ -105,7 +105,7 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getTotalInvoiceAmountExclVat() {
-        InvoiceCalculationsHelper calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
+        InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
 
         Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
                 VatAmountSummaryFactory.create(calculationsHelper.getVatDeclarationCountry());
@@ -115,7 +115,7 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getInvoiceTotalVat() {
-        InvoiceCalculationsHelper calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
+        InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
 
         Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
                 VatAmountSummaryFactory.create(calculationsHelper.getVatDeclarationCountry());
@@ -143,7 +143,7 @@ public class InvoiceImpl implements Invoice {
 
     private Map<VatPercentage, List<InvoiceLine>> getMapOfPercentages(VatRepository vatRepository) {
 
-        final InvoiceCalculationsHelper calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
+        final InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
 
         return this.getInvoiceLines().stream()
                 .collect(Collectors.groupingBy(
@@ -156,7 +156,7 @@ public class InvoiceImpl implements Invoice {
     private VatAmountSummary calculateVatAmountForVatTariff(VatPercentage percentage, List<InvoiceLine> invoiceLines) {
 
         final BigDecimal ZERO = new BigDecimal("0.00");
-        final InvoiceCalculationsHelper calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
+        final InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculatorHelperFactory.newInstance(this);
 
         Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
                 VatAmountSummaryFactory.create(calculationsHelper.getVatDeclarationCountry());

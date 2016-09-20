@@ -8,11 +8,11 @@ import nl.marcenschede.invoice.VatAmountSummary;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-public class InvoiceEuB2CCalculationsHelper extends InvoiceCalculationsHelper {
+public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegate {
 
     public final BigDecimal ZERO = new BigDecimal("0.00");
 
-    public InvoiceEuB2CCalculationsHelper(Invoice invoice) {
+    public InvoiceEuB2CCalculationsDelegate(Invoice invoice) {
         super(invoice);
     }
 
