@@ -22,7 +22,9 @@ public interface Invoice {
 
     void setCountryOfOrigin(Optional<String> productOrigin);
 
-    void setProductDestinationCountry(Optional<String> productDestination);
+    Optional<String> getCountryOfDestination();
+
+    void setCountryOfDestination(Optional<String> countryOfDestination);
 
     List<InvoiceLine> getInvoiceLines();
 

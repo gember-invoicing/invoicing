@@ -1,8 +1,5 @@
 package nl.marcenschede.invoice.tariffs;
 
-import nl.marcenschede.invoice.Invoice;
-import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -42,12 +39,7 @@ public class VatRepository {
         allPercentages.add(new VatPercentage(nl, VatTariff.HIGH, LocalDate.of(2012, 10, 1), null, new BigDecimal("21.00")));
     }
 
-    public VatPercentage findByOriginCountryTariffAndDate(Invoice invoice, VatTariff vatTariff, LocalDate referenceDate) {
-        String originCountry = CountryOfOriginHelper.getOriginCountry(invoice);
-        return findByCountryTariffAndDate(originCountry, vatTariff, referenceDate);
-    }
-
-    private VatPercentage findByCountryTariffAndDate(String country, VatTariff vatTariff, LocalDate referenceDate) {
+    public VatPercentage findByCountryTariffAndDate(String country, VatTariff vatTariff, LocalDate referenceDate) {
         Optional<VatPercentage> vatPercentage = getValidVatPercentage(country, vatTariff, referenceDate);
         return vatPercentage.orElseThrow(VatPercentageNotFoundException::new);
     }

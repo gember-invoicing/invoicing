@@ -54,7 +54,12 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
-            public void setProductDestinationCountry(Optional<String> productDestination) {
+            public Optional<String> getCountryOfDestination() {
+                return null;
+            }
+
+            @Override
+            public void setCountryOfDestination(Optional<String> countryOfDestination) {
 
             }
 
@@ -169,7 +174,12 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
-            public void setProductDestinationCountry(Optional<String> productDestination) {
+            public Optional<String> getCountryOfDestination() {
+                return null;
+            }
+
+            @Override
+            public void setCountryOfDestination(Optional<String> countryOfDestination) {
 
             }
 
@@ -284,7 +294,12 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
-            public void setProductDestinationCountry(Optional<String> productDestination) {
+            public Optional<String> getCountryOfDestination() {
+                return null;
+            }
+
+            @Override
+            public void setCountryOfDestination(Optional<String> countryOfDestination) {
 
             }
 

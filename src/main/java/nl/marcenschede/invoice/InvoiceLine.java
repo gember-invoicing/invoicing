@@ -15,6 +15,4 @@ public interface InvoiceLine {
     VatTariff getVatTariff();
 
     void setInvoice(Invoice invoice);
-
-    VatAmountSummary getAmountSummary();
 }

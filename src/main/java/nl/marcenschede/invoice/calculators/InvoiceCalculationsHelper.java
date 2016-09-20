@@ -6,43 +6,22 @@ import nl.marcenschede.invoice.InvoiceLine;
 import nl.marcenschede.invoice.VatAmountSummary;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
-public class InvoiceCalculationsHelper {
-
-    private final Invoice invoice;
+public abstract class InvoiceCalculationsHelper {
+    protected final Invoice invoice;
 
     public InvoiceCalculationsHelper(Invoice invoice) {
         this.invoice = invoice;
     }
 
-    public BigDecimal getTotalInvoiceAmountInclVat() {
-        validateValidity();
+    public abstract BigDecimal getTotalInvoiceAmountInclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
-        return invoice.getInvoiceLines().stream()
-                .map(InvoiceLine::getAmountSummary)
-                .map(VatAmountSummary::getAmountInclVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
-    }
+    public abstract BigDecimal getTotalInvoiceAmountExclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
-    public BigDecimal getTotalInvoiceAmountExclVat() {
-        validateValidity();
+    public abstract BigDecimal getInvoiceTotalVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
-        return invoice.getInvoiceLines().stream()
-                .map(InvoiceLine::getAmountSummary)
-                .map(VatAmountSummary::getAmountExclVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
-    }
-
-    public BigDecimal getInvoiceTotalVat() {
-        validateValidity();
-
-        return invoice.getInvoiceLines().stream()
-                .map(InvoiceLine::getAmountSummary)
-                .map(VatAmountSummary::getAmountVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
-    }
-
-    private void validateValidity() {
+    protected void validateValidity() {
         validateRegistrationInOriginCountry();
     }
 

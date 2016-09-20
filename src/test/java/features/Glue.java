@@ -5,7 +5,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
-import nl.marcenschede.invoice.calculators.VatCalculator;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 import nl.marcenschede.invoice.tariffs.VatTariff;
@@ -106,61 +105,13 @@ public class Glue {
             }
 
             @Override
-            public VatTariff getVatTariff() {
-                return VatTariff.valueOf(vatTariff.toUpperCase());
-            }
-
-            @Override
             public void setInvoice(Invoice invoice) {
                 this.invoice = invoice;
             }
 
             @Override
-            public VatAmountSummary getAmountSummary() {
-                return new VatAmountSummary(getVatPercentage(), getVatAmount(), getLineAmountExclVat(), getLineAmountInclVat());
-            }
-
-            private BigDecimal getLineAmountInclVat() {
-                return getInvoiceLineVatType() == InvoiceLineVatType.INCLUDING_VAT ?
-                        new BigDecimal(lineAmount) : calculateLineAmountInclVat();
-            }
-
-            private BigDecimal getLineAmountExclVat() {
-                return getInvoiceLineVatType() == InvoiceLineVatType.EXCLUDING_VAT ?
-                        new BigDecimal(lineAmount) : calculateLineAmountExclVat();
-            }
-
-            private BigDecimal getVatAmount() {
-                return getInvoiceLineVatType() == InvoiceLineVatType.EXCLUDING_VAT?
-                        calculateVatFromLineAmountExclVat() : calculateVatFromLineAmountInclVat();
-
-            }
-
-            private BigDecimal calculateVatFromLineAmountExclVat() {
-                BigDecimal percentage = getVatPercentage().getPercentage();
-                return VatCalculator.calculateVatFromLineAmountExclVat(new BigDecimal(lineAmount), percentage);
-            }
-
-            private BigDecimal calculateVatFromLineAmountInclVat() {
-                BigDecimal percentage = getVatPercentage().getPercentage();
-                return VatCalculator.calculateVatFromLineAmountInclVat(new BigDecimal(lineAmount), percentage);
-            }
-
-            private BigDecimal calculateLineAmountInclVat() {
-                BigDecimal percentage = getVatPercentage().getPercentage();
-                return VatCalculator.addVatToAmount(new BigDecimal(lineAmount), percentage);
-            }
-
-            private BigDecimal calculateLineAmountExclVat() {
-
-                BigDecimal percentage = getVatPercentage().getPercentage();
-                return VatCalculator.reduceVatFromLineAmount(new BigDecimal(lineAmount), percentage);
-            }
-
-            private VatPercentage getVatPercentage() {
-
-                return vatRepository.findByOriginCountryTariffAndDate(
-                                    invoice, getVatTariff(), LocalDate.parse(referenceDate));
+            public VatTariff getVatTariff() {
+                return VatTariff.valueOf(vatTariff.toUpperCase());
             }
 
         };
@@ -222,7 +173,7 @@ public class Glue {
         invoice.setCustomer(customer);
         invoice.setInvoiceType(invoiceType);
         invoice.setCountryOfOrigin(productOrigin);
-        invoice.setProductDestinationCountry(productDestination);
+        invoice.setCountryOfDestination(productDestination);
         invoice.setProductCategory(productCategory);
         invoice.setVatShifted(vatShifted.orElse(false));
         invoice.setInvoiceLines(invoiceLines);
@@ -246,7 +197,9 @@ public class Glue {
     public void the_total_amount_excluding_VAT_is(String expectedTotalAmountExclVat) throws Throwable {
         assert invoice != null;
 
-        assertThat(invoice.getTotalInvoiceAmountExclVat(), is(new BigDecimal(expectedTotalAmountExclVat)));
+        BigDecimal actualAmountExVat = invoice.getTotalInvoiceAmountExclVat();
+
+        assertThat(actualAmountExVat, is(new BigDecimal(expectedTotalAmountExclVat)));
     }
 
     @Then("^The total amount VAT is \"([^\"]*)\"$")
@@ -262,8 +215,10 @@ public class Glue {
     public void the_VAT_amount_for_percentage_is(String percentage, String expectedAmount) throws Throwable {
         assert invoice != null;
 
+        Map<VatPercentage, VatAmountSummary> mapOfVatAmountPerVatPercentage = invoice.getVatPerVatTariff();
+
         Optional<BigDecimal> actualAmount =
-                invoice.getVatPerVatTariff().entrySet().stream()
+                mapOfVatAmountPerVatPercentage.entrySet().stream()
                         .filter(entry -> entry.getKey().getPercentage().equals(new BigDecimal(percentage)))
                         .map(entry -> entry.getValue().getAmountVat())
                         .findFirst();
