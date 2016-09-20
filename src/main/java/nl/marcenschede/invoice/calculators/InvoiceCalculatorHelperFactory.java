@@ -8,7 +8,8 @@ public class InvoiceCalculatorHelperFactory {
         if(isNational(invoice))
             return new InvoiceNationalCalculationsHelper(invoice);
 
-        return new InvoiceEuB2CCalculationsHelper(invoice);
+        return invoice.getCustomer().getEuTaxId().isPresent() ?
+                new InvoiceEuGoodsDelegate(invoice): new InvoiceEuB2CCalculationsHelper(invoice);
     }
 
     private static boolean isNational(Invoice invoice) {
