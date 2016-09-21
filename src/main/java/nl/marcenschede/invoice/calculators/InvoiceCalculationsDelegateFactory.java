@@ -6,10 +6,13 @@ import nl.marcenschede.invoice.ProductCategory;
 public class InvoiceCalculationsDelegateFactory {
 
     public static InvoiceCalculationsDelegate newInstance(Invoice invoice) {
-        if(isNational(invoice))
+        if (isNational(invoice))
             return new InvoiceNationalCalculationsDelegate(invoice);
 
-        return getInvoiceCalculatorForEuTransaction(invoice);
+        if (isEuTransaction(invoice))
+            return getInvoiceCalculatorForEuTransaction(invoice);
+
+        return new InvoiceExportCalculationsDelegate(invoice);
     }
 
     private static boolean isNational(Invoice invoice) {
@@ -19,14 +22,20 @@ public class InvoiceCalculationsDelegateFactory {
         return originCountry.equals(destinationCountry);
     }
 
+    private static boolean isEuTransaction(Invoice invoice) {
+        String destinationCountry = CountryOfDestinationHelper.getDestinationCountry(invoice);
+
+        return EuCountry.isEuCountry(destinationCountry);
+    }
+
     private static InvoiceCalculationsDelegate getInvoiceCalculatorForEuTransaction(Invoice invoice) {
-        if(isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.GOODS)
+        if (isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.GOODS)
             return new InvoiceEuGoodsCalculationsDelegate(invoice);
 
-        if(isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.SERVICES)
+        if (isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.SERVICES)
             return new InvoiceEuServicesCalculationsDelegate(invoice);
 
-        if(isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.E_SERVICES)
+        if (isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.E_SERVICES)
             return new InvoiceEuEServicesCalculationsDelegate(invoice);
 
         return new InvoiceEuB2CCalculationsDelegate(invoice);
