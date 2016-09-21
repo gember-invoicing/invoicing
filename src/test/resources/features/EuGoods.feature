@@ -12,6 +12,7 @@ Feature: As I salesman I want to sell and invoice goods in other EU countries
     And A customer with VAT id "DE67890" and default country is "DE"
     And Country of origin is "NL"
     And Country of destination is "DE"
+    And The product category is "GOODS"
     When A "consumer" invoice is created at "2016-01-01"
     Then The total amount including VAT is "300.00"
     And The total amount excluding VAT is "300.00"

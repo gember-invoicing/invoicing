@@ -74,6 +74,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public Optional<ProductCategory> getProductCategory() {
+                return null;
+            }
+
+            @Override
             public void setProductCategory(Optional<ProductCategory> productCategory) {
 
             }
@@ -194,6 +199,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public Optional<ProductCategory> getProductCategory() {
+                return null;
+            }
+
+            @Override
             public void setProductCategory(Optional<ProductCategory> productCategory) {
 
             }
@@ -311,6 +321,11 @@ public class CountryOfOriginHelperTest {
             @Override
             public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
 
+            }
+
+            @Override
+            public Optional<ProductCategory> getProductCategory() {
+                return null;
             }
 
             @Override

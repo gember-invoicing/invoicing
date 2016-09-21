@@ -30,6 +30,8 @@ public interface Invoice {
 
     void setInvoiceLines(List<InvoiceLine> invoiceLines);
 
+    Optional<ProductCategory> getProductCategory();
+
     void setProductCategory(Optional<ProductCategory> productCategory);
 
     void setVatShifted(Boolean aBoolean);

@@ -164,6 +164,13 @@ public class Glue {
         productDestination = Optional.of(countryCode);
     }
 
+    @Given("^The product category is \"([^\"]*)\"$")
+    public void the_product_category_is(String productCategory) throws Throwable {
+
+        this.productCategory = StringUtils.isEmpty(productCategory) ?
+                Optional.empty() : Optional.of( ProductCategory.valueOf(productCategory));
+    }
+
     @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
     public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
         InvoiceType invoiceType = InvoiceType.valueOf(invoiceTypeVal.toUpperCase());
