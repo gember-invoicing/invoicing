@@ -1,6 +1,5 @@
 package nl.marcenschede.invoice.calculators;
 
-import nl.marcenschede.invoice.Company;
 import nl.marcenschede.invoice.Invoice;
 import nl.marcenschede.invoice.InvoiceLine;
 import nl.marcenschede.invoice.VatAmountSummary;
@@ -8,11 +7,8 @@ import nl.marcenschede.invoice.VatAmountSummary;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegate {
-
-    public final BigDecimal ZERO = new BigDecimal("0.00");
-
-    public InvoiceEuB2CCalculationsDelegate(Invoice invoice) {
+public class InvoiceEuEServicesCalculationsDelegate extends InvoiceCalculationsDelegate {
+    public InvoiceEuEServicesCalculationsDelegate(Invoice invoice) {
         super(invoice);
     }
 
@@ -24,7 +20,6 @@ public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegat
                 .map(amountSummaryCalculator)
                 .map(VatAmountSummary::getAmountInclVat)
                 .reduce(new BigDecimal("0.00"), BigDecimal::add);
-
     }
 
     @Override
@@ -49,15 +44,6 @@ public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegat
 
     @Override
     public String getVatDeclarationCountry() {
-
-        String destinationCountry = CountryOfDestinationHelper.getDestinationCountry(invoice);
-
-        Company company = invoice.getCompany();
-        Boolean companyHasRegistrationInDestinationCountry =
-                company.hasVatRegistrationFor(destinationCountry);
-
-        return companyHasRegistrationInDestinationCountry ?
-                destinationCountry : CountryOfOriginHelper.getOriginCountry(invoice);
+        return CountryOfDestinationHelper.getDestinationCountry(invoice);
     }
-
 }

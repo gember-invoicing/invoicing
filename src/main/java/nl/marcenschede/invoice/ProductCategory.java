@@ -3,5 +3,6 @@ package nl.marcenschede.invoice;
 public enum ProductCategory {
 
     GOODS,
-    SERVICES
+    SERVICES,
+    E_SERVICES
 }

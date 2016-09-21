@@ -4,6 +4,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import nl.marcenschede.invoice.*;
+import nl.marcenschede.invoice.calculators.CountryOfDestinationHelper;
 import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
 import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
@@ -337,7 +338,7 @@ public class Glue {
     public void the_total_amount_including_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
         try {
             invoice.getTotalInvoiceAmountInclVat();
-        } catch (CountryOfOriginHelper.NoDestinationCountrySetException e) {
+        } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }
 
@@ -348,7 +349,7 @@ public class Glue {
     public void the_total_amount_excluding_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
         try {
             invoice.getTotalInvoiceAmountExclVat();
-        } catch (CountryOfOriginHelper.NoDestinationCountrySetException e) {
+        } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }
 
@@ -359,7 +360,7 @@ public class Glue {
     public void the_total_amount_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
         try {
             invoice.getInvoiceTotalVat();
-        } catch (CountryOfOriginHelper.NoDestinationCountrySetException e) {
+        } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }
 
