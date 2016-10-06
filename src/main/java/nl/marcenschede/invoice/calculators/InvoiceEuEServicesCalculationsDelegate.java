@@ -2,9 +2,11 @@ package nl.marcenschede.invoice.calculators;
 
 import nl.marcenschede.invoice.Invoice;
 import nl.marcenschede.invoice.InvoiceLine;
+import nl.marcenschede.invoice.LineSummary;
 import nl.marcenschede.invoice.VatAmountSummary;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.function.Function;
 
 public class InvoiceEuEServicesCalculationsDelegate extends InvoiceCalculationsDelegate {
@@ -13,33 +15,24 @@ public class InvoiceEuEServicesCalculationsDelegate extends InvoiceCalculationsD
     }
 
     @Override
-    public BigDecimal getTotalInvoiceAmountInclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
-        validateValidity();
-
-        return invoice.getInvoiceLines().stream()
-                .map(amountSummaryCalculator)
+    public BigDecimal getTotalInvoiceAmountInclVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
+        return lineSummaries.stream()
                 .map(VatAmountSummary::getAmountInclVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+                .reduce(ZERO, BigDecimal::add);
     }
 
     @Override
-    public BigDecimal getTotalInvoiceAmountExclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
-        validateValidity();
-
-        return invoice.getInvoiceLines().stream()
-                .map(amountSummaryCalculator)
+    public BigDecimal getTotalInvoiceAmountExclVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
+        return lineSummaries.stream()
                 .map(VatAmountSummary::getAmountExclVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+                .reduce(ZERO, BigDecimal::add);
     }
 
     @Override
-    public BigDecimal getInvoiceTotalVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
-        validateValidity();
-
-        return invoice.getInvoiceLines().stream()
-                .map(amountSummaryCalculator)
+    public BigDecimal getInvoiceTotalVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
+        return lineSummaries.stream()
                 .map(VatAmountSummary::getAmountVat)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add);
+                .reduce(ZERO, BigDecimal::add);
     }
 
     @Override

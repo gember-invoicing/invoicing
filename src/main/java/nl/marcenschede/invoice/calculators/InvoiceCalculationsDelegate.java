@@ -1,29 +1,30 @@
 package nl.marcenschede.invoice.calculators;
 
-import nl.marcenschede.invoice.Invoice;
-import nl.marcenschede.invoice.InvoiceImpl;
-import nl.marcenschede.invoice.InvoiceLine;
-import nl.marcenschede.invoice.VatAmountSummary;
+import nl.marcenschede.invoice.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class InvoiceCalculationsDelegate {
+    public final BigDecimal ZERO = new BigDecimal("0.00");
+
     protected final Invoice invoice;
 
     public InvoiceCalculationsDelegate(Invoice invoice) {
         this.invoice = invoice;
     }
 
-    public abstract BigDecimal getTotalInvoiceAmountInclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
+    public abstract BigDecimal getTotalInvoiceAmountInclVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
-    public abstract BigDecimal getTotalInvoiceAmountExclVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
+    public abstract BigDecimal getTotalInvoiceAmountExclVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
-    public abstract BigDecimal getInvoiceTotalVat(Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
+    public abstract BigDecimal getInvoiceTotalVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator);
 
     public abstract String getVatDeclarationCountry();
 
-    protected void validateValidity() {
+    public void validateValidity() {
         validateRegistrationInOriginCountry();
     }
 
@@ -31,5 +32,15 @@ public abstract class InvoiceCalculationsDelegate {
         String originCountry = CountryOfOriginHelper.getOriginCountry(invoice);
         if(!invoice.getCompany().hasVatRegistrationFor(originCountry))
             throw new InvoiceImpl.NoRegistrationInOriginCountryException();
+    }
+
+    public List<LineSummary> getLineSummaries(Function<? super InvoiceLine, VatAmountSummary> vatCalculator) {
+        return invoice.getInvoiceLines().stream()
+                .map(invoiceLine -> createLineSummary(invoiceLine, vatCalculator))
+                .collect(Collectors.toList());
+    }
+
+    private LineSummary createLineSummary(InvoiceLine invoiceLine, Function<? super InvoiceLine, VatAmountSummary> vatCalculator) {
+        return new LineSummary(vatCalculator.apply(invoiceLine), invoiceLine);
     }
 }

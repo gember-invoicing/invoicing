@@ -17,6 +17,13 @@ public class VatAmountSummary {
         this.amountInclVat = amountInclVat;
     }
 
+    public VatAmountSummary(VatAmountSummary vatAmountSummary) {
+        this(vatAmountSummary.getVatPercentage(),
+                vatAmountSummary.getAmountVat(),
+                vatAmountSummary.getAmountExclVat(),
+                vatAmountSummary.getAmountInclVat());
+    }
+
     public BigDecimal getAmountVat() {
         return amountVat;
     }

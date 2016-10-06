@@ -91,7 +91,6 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
-
         this.invoiceLines = invoiceLines;
     }
 
@@ -114,15 +113,19 @@ public class InvoiceImpl implements Invoice {
     public InvoiceTotals getInvoiceTotals() {
         InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculationsDelegateFactory.newInstance(this);
 
+        calculationsHelper.validateValidity();
+
         Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
                 vatCalculatorForVatDeclarationCountry.apply(calculationsHelper.getVatDeclarationCountry());
 
         Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage = getMapOfPercentages(vatRepository);
 
+        List<LineSummary> lineSummaries = calculationsHelper.getLineSummaries(vatCalculator);
+
         return new InvoiceTotals(
-                calculationsHelper.getTotalInvoiceAmountExclVat(vatCalculator),
-                calculationsHelper.getInvoiceTotalVat(vatCalculator),
-                calculationsHelper.getTotalInvoiceAmountInclVat(vatCalculator),
+                calculationsHelper.getTotalInvoiceAmountExclVat(lineSummaries, vatCalculator),
+                calculationsHelper.getInvoiceTotalVat(lineSummaries, vatCalculator),
+                calculationsHelper.getTotalInvoiceAmountInclVat(lineSummaries, vatCalculator),
                 getVatAmountSummaryPerPercentage(mapOfInvoiceLinesPerVatPercentage));
     }
 
