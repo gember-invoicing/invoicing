@@ -6,7 +6,6 @@ import cucumber.api.java.en.When;
 import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.calculators.CountryOfDestinationHelper;
 import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
-import nl.marcenschede.invoice.tariffs.VatPercentage;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 import nl.marcenschede.invoice.tariffs.VatTariff;
 import org.apache.commons.lang3.StringUtils;
@@ -183,11 +182,9 @@ public class Glue {
 
     @Then("^The total amount including VAT is \"([^\"]*)\"$")
     public void the_total_amount_including_VAT_is(String expectedTotalAmountIncludingVat) throws Throwable {
-        assert invoice != null;
 
-        BigDecimal totalInvoiceAmountInclVat = invoice.getTotalInvoiceAmountInclVat();
-
-        assertThat(totalInvoiceAmountInclVat, is(new BigDecimal(expectedTotalAmountIncludingVat)));
+        InvoiceTotals invoiceTotals = invoice.getInvoiceTotals();
+        assertThat(invoiceTotals.totalInvoiceAmountInclVat, is(new BigDecimal(expectedTotalAmountIncludingVat)));
     }
 
 
@@ -195,28 +192,26 @@ public class Glue {
     public void the_total_amount_excluding_VAT_is(String expectedTotalAmountExclVat) throws Throwable {
         assert invoice != null;
 
-        BigDecimal actualAmountExVat = invoice.getTotalInvoiceAmountExclVat();
-
-        assertThat(actualAmountExVat, is(new BigDecimal(expectedTotalAmountExclVat)));
+        InvoiceTotals invoiceTotals = invoice.getInvoiceTotals();
+        assertThat(invoiceTotals.totalInvoiceAmountExclVat, is(new BigDecimal(expectedTotalAmountExclVat)));
     }
 
     @Then("^The total amount VAT is \"([^\"]*)\"$")
     public void the_total_amount_VAT_is(String expectedTotalAmountVat) throws Throwable {
         assert invoice != null;
 
-        BigDecimal invoiceTotalVat = invoice.getInvoiceTotalVat();
-
-        assertThat(invoiceTotalVat, is(new BigDecimal(expectedTotalAmountVat)));
+        InvoiceTotals invoiceTotals = invoice.getInvoiceTotals();
+        assertThat(invoiceTotals.invoiceTotalVat, is(new BigDecimal(expectedTotalAmountVat)));
     }
 
     @Then("^The VAT amount for percentage \"([^\"]*)\" is \"([^\"]*)\"$")
     public void the_VAT_amount_for_percentage_is(String percentage, String expectedAmount) throws Throwable {
         assert invoice != null;
 
-        Map<VatPercentage, VatAmountSummary> mapOfVatAmountPerVatPercentage = invoice.getVatPerVatTariff();
+        InvoiceTotals invoiceTotals = invoice.getInvoiceTotals();
 
         Optional<BigDecimal> actualAmount =
-                mapOfVatAmountPerVatPercentage.entrySet().stream()
+                invoiceTotals.vatAmountSummaryPerPercentage.entrySet().stream()
                         .filter(entry -> entry.getKey().getPercentage().equals(new BigDecimal(percentage)))
                         .map(entry -> entry.getValue().getAmountVat())
                         .findFirst();
@@ -228,7 +223,7 @@ public class Glue {
     @Then("^The total amount including VAT request throws an no origin country set exception$")
     public void the_total_amount_including_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountInclVat();
+            invoice.getInvoiceTotals();
         } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
@@ -239,7 +234,7 @@ public class Glue {
     @Then("^The total amount excluding VAT request throws an no origin country set exception$")
     public void the_total_amount_excluding_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountExclVat();
+            invoice.getInvoiceTotals();
         } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
@@ -250,7 +245,7 @@ public class Glue {
     @Then("^The total amount VAT request throws an no origin country set exception$")
     public void the_total_amount_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
         try {
-            invoice.getInvoiceTotalVat();
+            invoice.getInvoiceTotals();
         } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
@@ -261,7 +256,7 @@ public class Glue {
     @Then("^The total amount including VAT request throws an vat percentage not found exception$")
     public void the_total_amount_including_VAT_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountInclVat();
+            invoice.getInvoiceTotals();
         } catch (VatRepository.VatPercentageNotFoundException nocs) {
             return;
         }
@@ -272,7 +267,7 @@ public class Glue {
     @Then("^The total amount excluding VAT request throws an vat percentage not found exception$")
     public void the_total_amount_excluding_VAT_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountExclVat();
+            invoice.getInvoiceTotals();
         } catch (VatRepository.VatPercentageNotFoundException nocs) {
             return;
         }
@@ -283,7 +278,7 @@ public class Glue {
     @Then("^The total amount VAT request throws an vat percentage not found exception$")
     public void the_total_amount_VAT_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
         try {
-            invoice.getInvoiceTotalVat();
+            invoice.getInvoiceTotals();
         } catch (VatRepository.VatPercentageNotFoundException nocs) {
             return;
         }
@@ -294,7 +289,7 @@ public class Glue {
     @Then("^The total amount including VAT request throws an no registration in origin country exception$")
     public void the_total_amount_including_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountInclVat();
+            invoice.getInvoiceTotals();
         } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
             return;
         }
@@ -305,7 +300,7 @@ public class Glue {
     @Then("^The total amount excluding VAT request throws an no registration in origin country exception$")
     public void the_total_amount_excluding_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountExclVat();
+            invoice.getInvoiceTotals();
         } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
             return;
         }
@@ -316,7 +311,7 @@ public class Glue {
     @Then("^The total amount VAT request throws an no registration in origin country exception$")
     public void the_total_amount_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
         try {
-            invoice.getInvoiceTotalVat();
+            invoice.getInvoiceTotals();
         } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
             return;
         }
@@ -327,7 +322,7 @@ public class Glue {
     @Then("^The total amount including VAT request throws an no destination country set exception$")
     public void the_total_amount_including_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountInclVat();
+            invoice.getInvoiceTotals();
         } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }
@@ -338,7 +333,7 @@ public class Glue {
     @Then("^The total amount excluding VAT request throws an no destination country set exception$")
     public void the_total_amount_excluding_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
         try {
-            invoice.getTotalInvoiceAmountExclVat();
+            invoice.getInvoiceTotals();
         } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }
@@ -349,7 +344,7 @@ public class Glue {
     @Then("^The total amount VAT request throws an no destination country set exception$")
     public void the_total_amount_VAT_request_throws_an_no_destination_country_set_exception() throws Throwable {
         try {
-            invoice.getInvoiceTotalVat();
+            invoice.getInvoiceTotals();
         } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }

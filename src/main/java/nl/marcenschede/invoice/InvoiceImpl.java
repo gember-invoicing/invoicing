@@ -111,40 +111,19 @@ public class InvoiceImpl implements Invoice {
     }
 
     @Override
-    public BigDecimal getTotalInvoiceAmountInclVat() {
+    public InvoiceTotals getInvoiceTotals() {
         InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculationsDelegateFactory.newInstance(this);
 
         Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
                 vatCalculatorForVatDeclarationCountry.apply(calculationsHelper.getVatDeclarationCountry());
-
-        return calculationsHelper.getTotalInvoiceAmountInclVat(vatCalculator);
-    }
-
-    @Override
-    public BigDecimal getTotalInvoiceAmountExclVat() {
-        InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculationsDelegateFactory.newInstance(this);
-
-        Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
-                vatCalculatorForVatDeclarationCountry.apply(calculationsHelper.getVatDeclarationCountry());
-
-        return calculationsHelper.getTotalInvoiceAmountExclVat(vatCalculator);
-    }
-
-    @Override
-    public BigDecimal getInvoiceTotalVat() {
-        InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculationsDelegateFactory.newInstance(this);
-
-        Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
-                vatCalculatorForVatDeclarationCountry.apply(calculationsHelper.getVatDeclarationCountry());
-
-        return calculationsHelper.getInvoiceTotalVat(vatCalculator);
-    }
-
-    @Override
-    public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
 
         Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage = getMapOfPercentages(vatRepository);
-        return getVatAmountSummaryPerPercentage(mapOfInvoiceLinesPerVatPercentage);
+
+        return new InvoiceTotals(
+                calculationsHelper.getTotalInvoiceAmountExclVat(vatCalculator),
+                calculationsHelper.getInvoiceTotalVat(vatCalculator),
+                calculationsHelper.getTotalInvoiceAmountInclVat(vatCalculator),
+                getVatAmountSummaryPerPercentage(mapOfInvoiceLinesPerVatPercentage));
     }
 
     private Map<VatPercentage, VatAmountSummary> getVatAmountSummaryPerPercentage(Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage) {

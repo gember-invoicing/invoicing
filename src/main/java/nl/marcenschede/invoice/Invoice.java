@@ -1,10 +1,6 @@
 package nl.marcenschede.invoice;
 
-import nl.marcenschede.invoice.tariffs.VatPercentage;
-
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface Invoice {
@@ -36,11 +32,5 @@ public interface Invoice {
 
     void setVatShifted(Boolean aBoolean);
 
-    BigDecimal getTotalInvoiceAmountInclVat();
-
-    BigDecimal getTotalInvoiceAmountExclVat();
-
-    BigDecimal getInvoiceTotalVat();
-
-    Map<VatPercentage, VatAmountSummary> getVatPerVatTariff();
+    InvoiceTotals getInvoiceTotals();
 }

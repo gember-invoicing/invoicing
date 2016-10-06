@@ -1,10 +1,8 @@
 package nl.marcenschede.invoice.calculators;
 
 import nl.marcenschede.invoice.*;
-import nl.marcenschede.invoice.tariffs.VatPercentage;
 import org.junit.Test;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,22 +87,7 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
-            public BigDecimal getTotalInvoiceAmountInclVat() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getTotalInvoiceAmountExclVat() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getInvoiceTotalVat() {
-                return null;
-            }
-
-            @Override
-            public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
+            public InvoiceTotals getInvoiceTotals() {
                 return null;
             }
         };
@@ -214,22 +197,7 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
-            public BigDecimal getTotalInvoiceAmountInclVat() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getTotalInvoiceAmountExclVat() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getInvoiceTotalVat() {
-                return null;
-            }
-
-            @Override
-            public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
+            public InvoiceTotals getInvoiceTotals() {
                 return null;
             }
         };
@@ -339,22 +307,7 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
-            public BigDecimal getTotalInvoiceAmountInclVat() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getTotalInvoiceAmountExclVat() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getInvoiceTotalVat() {
-                return null;
-            }
-
-            @Override
-            public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
+            public InvoiceTotals getInvoiceTotals() {
                 return null;
             }
         };
