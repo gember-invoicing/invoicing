@@ -72,9 +72,7 @@ Feature: As a salesman I want to sell and invoice to local B2B and B2C customers
     And A customer without a validated VAT id and default country is ""
     And Country of destination is "NL"
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an no origin country set exception
-    Then The total amount excluding VAT request throws an no origin country set exception
-    Then The total amount VAT request throws an no origin country set exception
+    Then The invoice calculation request throws an no origin country set exception
 
   Scenario: A good is created for an unknown vat percentage
     Given A customer without a validated VAT id and default country is "NL"
@@ -82,9 +80,7 @@ Feature: As a salesman I want to sell and invoice to local B2B and B2C customers
     And Country of origin is "NL"
     And Country of destination is "NL"
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an vat percentage not found exception
-    Then The total amount excluding VAT request throws an vat percentage not found exception
-    Then The total amount VAT request throws an vat percentage not found exception
+    Then The invoice calculation request throws an vat percentage not found exception
 
 #  Scenario: A good is delivered to the customers default country
 
@@ -96,7 +92,5 @@ Feature: As a salesman I want to sell and invoice to local B2B and B2C customers
     And Country of origin is "BE"
     And Country of destination is "BE"
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an no registration in origin country exception
-    Then The total amount excluding VAT request throws an no registration in origin country exception
-    Then The total amount VAT request throws an no registration in origin country exception
+    Then The invoice calculation request throws an no registration in origin country exception
 
