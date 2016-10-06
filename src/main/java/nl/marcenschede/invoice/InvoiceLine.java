@@ -13,6 +13,4 @@ public interface InvoiceLine {
     LocalDate getVatReferenceDate();
 
     VatTariff getVatTariff();
-
-    void setInvoice(Invoice invoice);
 }

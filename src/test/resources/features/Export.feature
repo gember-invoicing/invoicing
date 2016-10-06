@@ -7,7 +7,7 @@ Feature: as a salesman I want to sell invoice products to countries outside the 
     And An invoiceline worth "106.00" euro "incl" VAT with "Low1" vat level and referencedate is "2016-01-01"
     And An invoiceline worth "100.00" euro "incl" VAT with "Zero" vat level and referencedate is "2016-01-01"
 
-  Scenario Outline: Deliver goods in primary country (NL > NL)
+  Scenario Outline: Deliver goods in primary country (NL > NO)
     Given A customer without a validated VAT id and default country is "NL"
     And Country of origin is "NL"
     And Country of destination is "NO"

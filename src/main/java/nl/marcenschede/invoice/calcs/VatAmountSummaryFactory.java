@@ -12,24 +12,18 @@ import java.util.function.Function;
 
 public class VatAmountSummaryFactory {
 
-    public static Function<? super InvoiceLine, VatAmountSummary> create(String originCountry) {
+    public static Function<VatRepository, Function<String, Function<? super InvoiceLine, VatAmountSummary>>> createVatCalculatorWith2() {
 
-        return new Function<InvoiceLine, VatAmountSummary>() {
-            @Override
-            public VatAmountSummary apply(InvoiceLine invoiceLine) {
+        return vatRepository -> ( originCountry -> (invoiceLine -> {
+            VatPercentage vatPercentage =
+                    vatRepository.findByCountryTariffAndDate(originCountry, invoiceLine.getVatTariff(), invoiceLine.getVatReferenceDate());
 
-                VatRepository vatRepository = new VatRepository();
-
-                VatPercentage vatPercentage =
-                        vatRepository.findByCountryTariffAndDate(originCountry, invoiceLine.getVatTariff(), invoiceLine.getVatReferenceDate());
-
-                return new VatAmountSummary(
-                        vatPercentage,
-                        getVatAmount(invoiceLine, vatPercentage),
-                        getLineAmountExclVat(invoiceLine, vatPercentage),
-                        getLineAmountInclVat(invoiceLine, vatPercentage));
-            }
-        };
+            return new VatAmountSummary(
+                    vatPercentage,
+                    getVatAmount(invoiceLine, vatPercentage),
+                    getLineAmountExclVat(invoiceLine, vatPercentage),
+                    getLineAmountInclVat(invoiceLine, vatPercentage));
+        }));
     }
 
     private static BigDecimal getLineAmountInclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {

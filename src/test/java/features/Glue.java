@@ -79,9 +79,6 @@ public class Glue {
                                                                                   final String referenceDate) throws Throwable {
 
         InvoiceLine invoiceLine = new InvoiceLine() {
-            private final VatRepository vatRepository = new VatRepository();
-            private Invoice invoice;
-
             @Override
             public BigDecimal getLineAmount() {
                 return new BigDecimal(lineAmount);
@@ -103,11 +100,6 @@ public class Glue {
             @Override
             public LocalDate getVatReferenceDate() {
                 return LocalDate.parse(referenceDate, DateTimeFormatter.ISO_DATE);
-            }
-
-            @Override
-            public void setInvoice(Invoice invoice) {
-                this.invoice = invoice;
             }
 
             @Override
@@ -176,7 +168,7 @@ public class Glue {
     public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
         InvoiceType invoiceType = InvoiceType.valueOf(invoiceTypeVal.toUpperCase());
 
-        Invoice invoice = new InvoiceImpl();
+        Invoice invoice = new InvoiceImpl(new VatRepository());
         invoice.setCompany(company);
         invoice.setCustomer(customer);
         invoice.setInvoiceType(invoiceType);
@@ -185,8 +177,6 @@ public class Glue {
         invoice.setProductCategory(productCategory);
         invoice.setVatShifted(vatShifted.orElse(false));
         invoice.setInvoiceLines(invoiceLines);
-
-        invoiceLines.forEach(invoiceLine -> invoiceLine.setInvoice(invoice));
 
         this.invoice = invoice;
     }
