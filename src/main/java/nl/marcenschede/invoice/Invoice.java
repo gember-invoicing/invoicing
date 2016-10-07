@@ -30,6 +30,8 @@ public interface Invoice {
 
     void setProductCategory(Optional<ProductCategory> productCategory);
 
+    boolean getVatShifted();
+
     void setVatShifted(Boolean aBoolean);
 
     InvoiceTotals getInvoiceTotals();

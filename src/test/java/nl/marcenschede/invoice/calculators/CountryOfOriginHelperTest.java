@@ -82,6 +82,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public boolean getVatShifted() {
+                return false;
+            }
+
+            @Override
             public void setVatShifted(Boolean aBoolean) {
 
             }
@@ -192,6 +197,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public boolean getVatShifted() {
+                return false;
+            }
+
+            @Override
             public void setVatShifted(Boolean aBoolean) {
 
             }
@@ -299,6 +309,11 @@ public class CountryOfOriginHelperTest {
             @Override
             public void setProductCategory(Optional<ProductCategory> productCategory) {
 
+            }
+
+            @Override
+            public boolean getVatShifted() {
+                return false;
             }
 
             @Override

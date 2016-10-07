@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 
 public class Glue {
 
-    private final List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
+    private final List<InvoiceLine> invoiceLines = new ArrayList<>();
     private Optional<String> productOrigin = Optional.empty();
     private Optional<String> productDestination = Optional.empty();
     private Optional<ProductCategory> productCategory = Optional.empty();
@@ -163,6 +163,12 @@ public class Glue {
                 Optional.empty() : Optional.of( ProductCategory.valueOf(productCategory));
     }
 
+    @Given("^Vat is shifted$")
+    public void vat_is_shifted() throws Throwable {
+
+        vatShifted = Optional.of(true);
+    }
+
     @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
     public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
         InvoiceType invoiceType = InvoiceType.valueOf(invoiceTypeVal.toUpperCase());
@@ -218,6 +224,13 @@ public class Glue {
 
         assertThat(actualAmount.isPresent(), is(true));
         assertThat(actualAmount.get(), is(new BigDecimal(expectedAmount)));
+    }
+
+    @Then("^Invoice is attributed as VAT Shifted$")
+    public void invoice_is_attributed_as_VAT_Shifted() throws Throwable {
+        assert invoice != null;
+
+        assertThat(invoice.getVatShifted(), is(true));
     }
 
     @Then("^The invoice calculation request throws an no origin country set exception$")

@@ -23,3 +23,14 @@ Feature: as a salesman I want to sell invoice products to countries outside the 
       | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
       | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
 
+  Scenario: Deliver goods in primary country (NL > NO) with VAT shifted
+    Given A customer without a validated VAT id and default country is "NL"
+    And Country of origin is "NL"
+    And Country of destination is "NO"
+    And Vat is shifted
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "300.00"
+    And The total amount excluding VAT is "300.00"
+    And The total amount VAT is "0.00"
+    And Invoice is attributed as VAT Shifted
+

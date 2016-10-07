@@ -6,13 +6,20 @@ import nl.marcenschede.invoice.ProductCategory;
 public class InvoiceCalculationsDelegateFactory {
 
     public static InvoiceCalculationsDelegate newInstance(Invoice invoice) {
-        if (isNational(invoice))
+        if (isNational(invoice) && !isVatShifted(invoice))
             return new InvoiceNationalCalculationsDelegate(invoice);
+
+        if (isNational(invoice) && isVatShifted(invoice))
+            return new InvoiceNationalVatShiftedCalculationsDelegate(invoice);
 
         if (isEuTransaction(invoice))
             return getInvoiceCalculatorForEuTransaction(invoice);
 
-        return new InvoiceExportCalculationsDelegate(invoice);
+        return getInvoiceCalculatorForExportTransaction(invoice);
+    }
+
+    private static boolean isVatShifted(Invoice invoice) {
+        return invoice.getVatShifted();
     }
 
     private static boolean isNational(Invoice invoice) {
@@ -29,16 +36,29 @@ public class InvoiceCalculationsDelegateFactory {
     }
 
     private static InvoiceCalculationsDelegate getInvoiceCalculatorForEuTransaction(Invoice invoice) {
-        if (isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.GOODS)
+        if (isBusinessCustomer(invoice) && invoice.getProductCategory().orElse(null) == ProductCategory.GOODS)
             return new InvoiceEuGoodsCalculationsDelegate(invoice);
 
-        if (isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.SERVICES)
-            return new InvoiceEuServicesCalculationsDelegate(invoice);
+        if (isBusinessCustomer(invoice) && invoice.getProductCategory().orElse(null) == ProductCategory.SERVICES)
+            if (!isVatShifted(invoice))
+                return new InvoiceEuServicesCalculationsDelegate(invoice);
+            else
+                return new InvoiceEuServicesVatShiftedCalculationsDelegate(invoice);
 
-        if (isBusinessCustomer(invoice) && invoice.getProductCategory().get() == ProductCategory.E_SERVICES)
-            return new InvoiceEuEServicesCalculationsDelegate(invoice);
+        if (isBusinessCustomer(invoice) && invoice.getProductCategory().orElse(null) == ProductCategory.E_SERVICES)
+            if (!isVatShifted(invoice))
+                return new InvoiceEuEServicesCalculationsDelegate(invoice);
+            else
+                return new InvoiceEuEServicesVatShiftedCalculationsDelegate(invoice);
 
         return new InvoiceEuB2CCalculationsDelegate(invoice);
+    }
+
+    private static InvoiceCalculationsDelegate getInvoiceCalculatorForExportTransaction(Invoice invoice) {
+        if (!isVatShifted(invoice))
+            return new InvoiceExportCalculationsDelegate(invoice);
+        else
+            return new InvoiceExportVatShiftedCalculationsDelegate(invoice);
     }
 
     private static Boolean isBusinessCustomer(Invoice invoice) {

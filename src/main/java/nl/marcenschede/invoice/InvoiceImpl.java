@@ -25,6 +25,7 @@ public class InvoiceImpl implements Invoice {
     private Optional<String> countryOfDestination;
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
     private Optional<ProductCategory> productCategory;
+    private Boolean vatShifted;
 
     public InvoiceImpl(VatRepository vatRepository) {
         this.vatRepository = vatRepository;
@@ -105,8 +106,13 @@ public class InvoiceImpl implements Invoice {
     }
 
     @Override
-    public void setVatShifted(Boolean aBoolean) {
+    public boolean getVatShifted() {
+        return vatShifted;
+    }
 
+    @Override
+    public void setVatShifted(Boolean vatShifted) {
+        this.vatShifted = vatShifted;
     }
 
     @Override
@@ -149,7 +155,7 @@ public class InvoiceImpl implements Invoice {
 
     private Map<CountryTariffPeriodPercentageTuple, List<LineSummary>> getMapOfCountryTariffPeriodPercentageTuples(List<LineSummary> lineSummaries) {
         return lineSummaries.stream()
-                .collect(Collectors.groupingBy(lineSummary -> lineSummary.getCountryTariffPeriodPercentageTuple()));
+                .collect(Collectors.groupingBy(VatAmountSummary::getCountryTariffPeriodPercentageTuple));
     }
 
     private VatAmountSummary sumAmountsToVatAmountSummary(CountryTariffPeriodPercentageTuple percentage, List<LineSummary> lineSummaries) {

@@ -82,12 +82,7 @@ Feature: As a salesman I want to sell and invoice to local B2B and B2C customers
     When A "consumer" invoice is created at "2016-01-01"
     Then The invoice calculation request throws an vat percentage not found exception
 
-#  Scenario: A good is delivered to the customers default country
-
-#  Scenario: A good is delivered to the customer default country and no default country is set
-
   Scenario: Deliver goods in a secondary EU country without vat registration to a local B2C customer
-    #Levering BE > BE; geen vat registratie in BE
     Given A customer without a validated VAT id and default country is "BE"
     And Country of origin is "BE"
     And Country of destination is "BE"
