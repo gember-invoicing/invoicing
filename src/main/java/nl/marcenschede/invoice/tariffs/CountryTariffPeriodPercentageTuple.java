@@ -3,7 +3,7 @@ package nl.marcenschede.invoice.tariffs;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class VatPercentage {
+public class CountryTariffPeriodPercentageTuple {
 
     String isoCountryCode;
     VatTariff vatTariff;
@@ -11,7 +11,7 @@ public class VatPercentage {
     LocalDate endDate;
     BigDecimal percentage;
 
-    public VatPercentage(String isoCountryCode, VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
+    public CountryTariffPeriodPercentageTuple(String isoCountryCode, VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
         this.isoCountryCode = isoCountryCode;
         this.vatTariff = vatTariff;
         this.startDate = startDate;
@@ -28,7 +28,7 @@ public class VatPercentage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        VatPercentage that = (VatPercentage) o;
+        CountryTariffPeriodPercentageTuple that = (CountryTariffPeriodPercentageTuple) o;
 
         if (vatTariff != that.vatTariff) return false;
         if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
@@ -48,7 +48,7 @@ public class VatPercentage {
 
     @Override
     public String toString() {
-        return "VatPercentage{" +
+        return "CountryTariffPeriodPercentageTuple{" +
                 "isoCountryCode=" + isoCountryCode +
                 ", vatTariff=" + vatTariff +
                 ", startDate=" + startDate +

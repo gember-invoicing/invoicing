@@ -24,7 +24,7 @@ public abstract class InvoiceCalculationsDelegate {
 
     public abstract String getVatDeclarationCountry();
 
-    public void validateValidity() {
+    public void checkInvoiceValidity() {
         validateRegistrationInOriginCountry();
     }
 

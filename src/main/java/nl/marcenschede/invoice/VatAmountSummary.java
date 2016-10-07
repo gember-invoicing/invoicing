@@ -1,24 +1,24 @@
 package nl.marcenschede.invoice;
 
-import nl.marcenschede.invoice.tariffs.VatPercentage;
+import nl.marcenschede.invoice.tariffs.CountryTariffPeriodPercentageTuple;
 
 import java.math.BigDecimal;
 
 public class VatAmountSummary {
-    private VatPercentage vatPercentage;
+    private CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple;
     private BigDecimal amountVat;
     private BigDecimal amountExclVat;
     private BigDecimal amountInclVat;
 
-    public VatAmountSummary(VatPercentage vatPercentage, BigDecimal amountVat, BigDecimal amountExclVat, BigDecimal amountInclVat) {
-        this.vatPercentage = vatPercentage;
+    public VatAmountSummary(CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple, BigDecimal amountVat, BigDecimal amountExclVat, BigDecimal amountInclVat) {
+        this.countryTariffPeriodPercentageTuple = countryTariffPeriodPercentageTuple;
         this.amountVat = amountVat;
         this.amountExclVat = amountExclVat;
         this.amountInclVat = amountInclVat;
     }
 
     public VatAmountSummary(VatAmountSummary vatAmountSummary) {
-        this(vatAmountSummary.getVatPercentage(),
+        this(vatAmountSummary.getCountryTariffPeriodPercentageTuple(),
                 vatAmountSummary.getAmountVat(),
                 vatAmountSummary.getAmountExclVat(),
                 vatAmountSummary.getAmountInclVat());
@@ -28,8 +28,8 @@ public class VatAmountSummary {
         return amountVat;
     }
 
-    public VatPercentage getVatPercentage() {
-        return vatPercentage;
+    public CountryTariffPeriodPercentageTuple getCountryTariffPeriodPercentageTuple() {
+        return countryTariffPeriodPercentageTuple;
     }
 
     public BigDecimal getAmountExclVat() {
@@ -45,7 +45,7 @@ public class VatAmountSummary {
         BigDecimal amountExclVat = this.getAmountExclVat().add(operand.amountExclVat);
         BigDecimal amountVat = this.getAmountVat().add(operand.getAmountVat());
 
-        return new VatAmountSummary(this.getVatPercentage(), amountVat, amountExclVat, amountInclVat);
+        return new VatAmountSummary(this.getCountryTariffPeriodPercentageTuple(), amountVat, amountExclVat, amountInclVat);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class VatAmountSummary {
 
         VatAmountSummary that = (VatAmountSummary) o;
 
-        if (vatPercentage != null ? !vatPercentage.equals(that.vatPercentage) : that.vatPercentage != null)
+        if (countryTariffPeriodPercentageTuple != null ? !countryTariffPeriodPercentageTuple.equals(that.countryTariffPeriodPercentageTuple) : that.countryTariffPeriodPercentageTuple != null)
             return false;
         if (amountVat != null ? !amountVat.equals(that.amountVat) : that.amountVat != null) return false;
         if (amountExclVat != null ? !amountExclVat.equals(that.amountExclVat) : that.amountExclVat != null)
@@ -66,7 +66,7 @@ public class VatAmountSummary {
 
     @Override
     public int hashCode() {
-        int result = vatPercentage != null ? vatPercentage.hashCode() : 0;
+        int result = countryTariffPeriodPercentageTuple != null ? countryTariffPeriodPercentageTuple.hashCode() : 0;
         result = 31 * result + (amountVat != null ? amountVat.hashCode() : 0);
         result = 31 * result + (amountExclVat != null ? amountExclVat.hashCode() : 0);
         result = 31 * result + (amountInclVat != null ? amountInclVat.hashCode() : 0);

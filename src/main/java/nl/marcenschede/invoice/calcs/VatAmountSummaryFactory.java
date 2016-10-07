@@ -4,7 +4,7 @@ import nl.marcenschede.invoice.InvoiceLine;
 import nl.marcenschede.invoice.InvoiceLineVatType;
 import nl.marcenschede.invoice.VatAmountSummary;
 import nl.marcenschede.invoice.calculators.VatCalculator;
-import nl.marcenschede.invoice.tariffs.VatPercentage;
+import nl.marcenschede.invoice.tariffs.CountryTariffPeriodPercentageTuple;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 
 import java.math.BigDecimal;
@@ -15,47 +15,47 @@ public class VatAmountSummaryFactory {
     public static Function<VatRepository, Function<String, Function<? super InvoiceLine, VatAmountSummary>>> createVatCalculatorWith2() {
 
         return vatRepository -> ( originCountry -> (invoiceLine -> {
-            VatPercentage vatPercentage =
+            CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple =
                     vatRepository.findByCountryTariffAndDate(originCountry, invoiceLine.getVatTariff(), invoiceLine.getVatReferenceDate());
 
             return new VatAmountSummary(
-                    vatPercentage,
-                    getVatAmount(invoiceLine, vatPercentage),
-                    getLineAmountExclVat(invoiceLine, vatPercentage),
-                    getLineAmountInclVat(invoiceLine, vatPercentage));
+                    countryTariffPeriodPercentageTuple,
+                    getVatAmount(invoiceLine, countryTariffPeriodPercentageTuple),
+                    getLineAmountExclVat(invoiceLine, countryTariffPeriodPercentageTuple),
+                    getLineAmountInclVat(invoiceLine, countryTariffPeriodPercentageTuple));
         }));
     }
 
-    private static BigDecimal getLineAmountInclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
+    private static BigDecimal getLineAmountInclVat(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
         return invoiceLine.getInvoiceLineVatType() == InvoiceLineVatType.INCLUDING_VAT ?
-                invoiceLine.getLineAmount() : calculateLineAmountInclVat(invoiceLine, vatPercentage);
+                invoiceLine.getLineAmount() : calculateLineAmountInclVat(invoiceLine, countryTariffPeriodPercentageTuple);
     }
 
-    private static BigDecimal getLineAmountExclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
+    private static BigDecimal getLineAmountExclVat(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
         return invoiceLine.getInvoiceLineVatType() == InvoiceLineVatType.EXCLUDING_VAT ?
-                invoiceLine.getLineAmount() : calculateLineAmountExclVat(invoiceLine, vatPercentage);
+                invoiceLine.getLineAmount() : calculateLineAmountExclVat(invoiceLine, countryTariffPeriodPercentageTuple);
     }
 
-    private static BigDecimal getVatAmount(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
+    private static BigDecimal getVatAmount(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
         return invoiceLine.getInvoiceLineVatType() == InvoiceLineVatType.EXCLUDING_VAT ?
-                calculateVatFromLineAmountExclVat(invoiceLine, vatPercentage) :
-                calculateVatFromLineAmountInclVat(invoiceLine, vatPercentage);
+                calculateVatFromLineAmountExclVat(invoiceLine, countryTariffPeriodPercentageTuple) :
+                calculateVatFromLineAmountInclVat(invoiceLine, countryTariffPeriodPercentageTuple);
     }
 
-    private static BigDecimal calculateVatFromLineAmountExclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
-        return VatCalculator.calculateVatFromLineAmountExclVat(invoiceLine.getLineAmount(), vatPercentage.getPercentage());
+    private static BigDecimal calculateVatFromLineAmountExclVat(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
+        return VatCalculator.calculateVatFromLineAmountExclVat(invoiceLine.getLineAmount(), countryTariffPeriodPercentageTuple.getPercentage());
     }
 
-    private static BigDecimal calculateVatFromLineAmountInclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
-        return VatCalculator.calculateVatFromLineAmountInclVat(invoiceLine.getLineAmount(), vatPercentage.getPercentage());
+    private static BigDecimal calculateVatFromLineAmountInclVat(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
+        return VatCalculator.calculateVatFromLineAmountInclVat(invoiceLine.getLineAmount(), countryTariffPeriodPercentageTuple.getPercentage());
     }
 
-    private static BigDecimal calculateLineAmountInclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
-        return VatCalculator.addVatToAmount(invoiceLine.getLineAmount(), vatPercentage.getPercentage());
+    private static BigDecimal calculateLineAmountInclVat(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
+        return VatCalculator.addVatToAmount(invoiceLine.getLineAmount(), countryTariffPeriodPercentageTuple.getPercentage());
     }
 
-    private static BigDecimal calculateLineAmountExclVat(InvoiceLine invoiceLine, VatPercentage vatPercentage) {
-        return VatCalculator.reduceVatFromLineAmount(invoiceLine.getLineAmount(), vatPercentage.getPercentage());
+    private static BigDecimal calculateLineAmountExclVat(InvoiceLine invoiceLine, CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
+        return VatCalculator.reduceVatFromLineAmount(invoiceLine.getLineAmount(), countryTariffPeriodPercentageTuple.getPercentage());
     }
 }
 
