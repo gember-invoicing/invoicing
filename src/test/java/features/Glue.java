@@ -7,20 +7,26 @@ import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.calculators.CountryOfDestinationHelper;
 import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
 import nl.marcenschede.invoice.functional.InvoiceCalculatorFactory;
+import nl.marcenschede.invoice.functional.InvoiceCreationEvent;
+import nl.marcenschede.invoice.functional.InvoiceCreationFactory;
 import nl.marcenschede.invoice.functional.InvoiceData;
 import nl.marcenschede.invoice.tariffs.VatRepository;
 import nl.marcenschede.invoice.tariffs.VatTariff;
 import org.apache.commons.lang3.StringUtils;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class Glue {
 
@@ -164,7 +170,7 @@ public class Glue {
     public void the_product_category_is(String productCategory) throws Throwable {
 
         this.productCategory = StringUtils.isEmpty(productCategory) ?
-                Optional.empty() : Optional.of( ProductCategory.valueOf(productCategory));
+                Optional.empty() : Optional.of(ProductCategory.valueOf(productCategory));
     }
 
     @Given("^Vat is shifted$")
@@ -299,4 +305,36 @@ public class Glue {
         fail();
     }
 
+    @Then("^An invoice creation event is created$")
+    public void an_invoice_creation_event_is_created() throws Throwable {
+
+        final Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> consumerConsumerFunction =
+                InvoiceCreationFactory.invoiceCreationFactory(company, new VatRepository());
+
+        final Consumer consumer = mock(Consumer.class);
+
+        final Consumer<InvoiceData> eventConsumer = consumerConsumerFunction.apply(consumer);
+        eventConsumer.accept(invoiceData);
+
+        verify(consumer, times(1)).accept(Mockito.any());
+    }
+
+    @When("^An invoice creation event is created with total invoice amount is \"([^\"]*)\"$")
+    public void an_invoice_creation_event_is_created_with_total_invoice_amount_is(String expectedTotalAmountInclVat) throws Throwable {
+
+        final Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> consumerConsumerFunction =
+                InvoiceCreationFactory.invoiceCreationFactory(company, new VatRepository());
+
+        final Consumer consumer = mock(Consumer.class);
+        ArgumentCaptor<InvoiceCreationEvent> eventArgumentCaptor = ArgumentCaptor.forClass(InvoiceCreationEvent.class);
+        doNothing().when(consumer).accept(eventArgumentCaptor.capture());
+
+        final Consumer<InvoiceData> eventConsumer = consumerConsumerFunction.apply(consumer);
+        eventConsumer.accept(invoiceData);
+
+        assertThat(
+                eventArgumentCaptor.getValue().getInvoiceTotals().totalInvoiceAmountInclVat,
+                is(new BigDecimal(expectedTotalAmountInclVat)) );
+
+    }
 }

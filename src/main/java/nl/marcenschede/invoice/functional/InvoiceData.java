@@ -17,6 +17,19 @@ public class InvoiceData {
     private Boolean vatShifted;
     private List<InvoiceLine> invoiceLines;
 
+    public InvoiceData() {
+    }
+
+    public InvoiceData(InvoiceData invoiceData) {
+        this.countryOfDestination = invoiceData.getCountryOfDestination();
+        this.countryOfOrigin = invoiceData.getCountryOfOrigin();
+        this.customer = invoiceData.getCustomer();
+        this.invoiceType = invoiceData.getInvoiceType();
+        this.productCategory = invoiceData.getProductCategory();
+        this.vatShifted = invoiceData.getVatShifted();
+        this.invoiceLines = invoiceData.getInvoiceLines();
+    }
+
     public Optional<String> getCountryOfOrigin() {
         return countryOfOrigin;
     }
