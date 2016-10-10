@@ -11,15 +11,14 @@ import nl.marcenschede.invoice.functional.InvoiceCalculatorFactory;
 import nl.marcenschede.invoice.functional.InvoiceCreationEvent;
 import nl.marcenschede.invoice.functional.InvoiceCreationFactory;
 import nl.marcenschede.invoice.functional.InvoiceData;
-import nl.marcenschede.invoice.tariffs.VatTariff;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -45,39 +44,13 @@ public class Glue {
     @Given("^A company in \"([^\"]*)\" with vat calculation policy is \"([^\"]*)\"$")
     public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String primaryCountry,
                                                                        final String vatPolicy) throws Throwable {
-        company = new Company() {
-            private Map<String, String> vatRegistrations = new HashMap<>();
 
-            @Override
-            public VatCalculationPolicy getVatCalculationPolicy() {
-                return VatCalculationPolicy.valueOf(vatPolicy);
-            }
-
-            @Override
-            public String getPrimaryCountryIso() {
-                return primaryCountry;
-            }
-
-            @Override
-            public Map<String, String> getVatRegistrations() {
-                return vatRegistrations;
-            }
-
-            @Override
-            public boolean hasVatRegistrationFor(String isoOfcountryOfDestination) {
-                return vatRegistrations.containsKey(isoOfcountryOfDestination);
-            }
-
-            @Override
-            public Optional<String> getVatRegistrationInCountry(String country) {
-                return Optional.ofNullable(vatRegistrations.get(country));
-            }
-        };
-
+        company = new CompanyGenerator(primaryCountry, vatPolicy).invoke();
     }
 
     @Given("^the company has VAT id \"([^\"]*)\" in \"([^\"]*)\"$")
     public void the_company_has_VAT_id_in(String vatId, String companyCountry) throws Throwable {
+        assert company != null;
 
         company.getVatRegistrations().put(companyCountry, vatId);
     }
@@ -88,71 +61,20 @@ public class Glue {
                                                                                   final String vatTariff,
                                                                                   final String referenceDate) throws Throwable {
 
-        InvoiceLine invoiceLine = new InvoiceLine() {
-            @Override
-            public BigDecimal getLineAmount() {
-                return new BigDecimal(lineAmount);
-            }
-
-            @Override
-            public InvoiceLineVatType getInvoiceLineVatType() {
-
-                switch (inclExclVat.toUpperCase()) {
-                    case "INCL":
-                        return InvoiceLineVatType.INCLUDING_VAT;
-                    case "EXCL":
-                        return InvoiceLineVatType.EXCLUDING_VAT;
-                }
-
-                return null;
-            }
-
-            @Override
-            public LocalDate getVatReferenceDate() {
-                return LocalDate.parse(referenceDate, DateTimeFormatter.ISO_DATE);
-            }
-
-            @Override
-            public VatTariff getVatTariff() {
-                return VatTariff.valueOf(vatTariff.toUpperCase());
-            }
-
-        };
-
+        InvoiceLine invoiceLine = new InvoiceLineCreator(lineAmount, inclExclVat, vatTariff, referenceDate).invoke();
         invoiceLines.add(invoiceLine);
     }
 
     @Given("^A customer without a validated VAT id and default country is \"([^\"]*)\"$")
     public void a_customer_without_a_validated_VAT_id(String defaultCountry) throws Throwable {
 
-        customer = new Customer() {
-            @Override
-            public Optional<String> getDefaultCountry() {
-                return Optional.ofNullable(StringUtils.isBlank(defaultCountry) ? null : defaultCountry);
-            }
-
-            @Override
-            public Optional<String> getEuTaxId() {
-                return Optional.empty();
-            }
-        };
-
+        customer = new CustomerCreator(null, defaultCountry).invoke();
     }
 
     @Given("^A customer with VAT id \"([^\"]*)\" and default country is \"([^\"]*)\"$")
     public void a_customer_with_VAT_id_and_default_country_is(String vatId, String defaultCountry) throws Throwable {
 
-        customer = new Customer() {
-            @Override
-            public Optional<String> getDefaultCountry() {
-                return Optional.ofNullable(StringUtils.isBlank(defaultCountry) ? null : defaultCountry);
-            }
-
-            @Override
-            public Optional<String> getEuTaxId() {
-                return Optional.of(vatId);
-            }
-        };
+        customer = new CustomerCreator(vatId, defaultCountry).invoke();
     }
 
     @Given("^Country of origin is \"([^\"]*)\"$")
@@ -335,7 +257,7 @@ public class Glue {
 
         assertThat(
                 eventArgumentCaptor.getValue().getInvoiceTotals().totalInvoiceAmountInclVat,
-                is(new BigDecimal(expectedTotalAmountInclVat)) );
+                is(new BigDecimal(expectedTotalAmountInclVat)));
 
     }
 
@@ -353,15 +275,11 @@ public class Glue {
 
         assertThat(
                 eventArgumentCaptor.getValue().getInvoiceNumber(),
-                is(new Long(expectedInvoiceNumber)) );
+                is(new Long(expectedInvoiceNumber)));
     }
 
     public Supplier<Long> getInvoiceCounter() {
-        return new Supplier<Long>() {
-            @Override
-            public Long get() {
-                return 201601000016L;
-            }
-        };
+        return new InvoiceNumerGeneratorCreator().invoke();
     }
+
 }
