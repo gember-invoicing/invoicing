@@ -2,10 +2,14 @@ package nl.marcenschede.invoice.eventProcessors;
 
 import nl.marcenschede.invoice.core.Customer;
 import nl.marcenschede.invoice.core.InvoiceTotals;
+import nl.marcenschede.invoice.core.LineSummary;
+import nl.marcenschede.invoice.core.VatAmountSummary;
 import nl.marcenschede.invoice.core.functional.InvoiceCreationEvent;
 import nl.marcenschede.invoice.core.functional.InvoiceData;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class SampleEventCreator {
@@ -47,8 +51,20 @@ public class SampleEventCreator {
 
     private class InvoiceTotalsCreator {
         public InvoiceTotals invoke() {
+            List<LineSummary> lineSummaries = new ArrayList<>();
+
+            VatAmountSummary vatAmountSummary = new SampleVatAmountSummaryCreator().invoke();
+            lineSummaries.add(new LineSummary(vatAmountSummary, null));
+
             return new InvoiceTotals(
-                        new BigDecimal("100.00"), new BigDecimal("21.00"), new BigDecimal("121.00"), null);
+                        new BigDecimal("100.00"), new BigDecimal("21.00"), new BigDecimal("121.00"), null, lineSummaries);
+        }
+
+        private class SampleVatAmountSummaryCreator {
+            public VatAmountSummary invoke() {
+                return new VatAmountSummary(null,
+                                new BigDecimal("21.00"), new BigDecimal("100.00"), new BigDecimal("121.00") );
+            }
         }
     }
 }
