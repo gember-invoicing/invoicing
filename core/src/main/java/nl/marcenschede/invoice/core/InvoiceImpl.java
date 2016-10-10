@@ -138,7 +138,8 @@ public class InvoiceImpl implements Invoice {
                 calculationsHelper.getTotalInvoiceAmountExclVat(lineSummaries, vatCalculator),
                 calculationsHelper.getInvoiceTotalVat(lineSummaries, vatCalculator),
                 calculationsHelper.getTotalInvoiceAmountInclVat(lineSummaries, vatCalculator),
-                vatAmountSummaryPerPercentage);
+                vatAmountSummaryPerPercentage,
+                lineSummaries);
     }
 
     private Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> getVatAmountSummaryPerPercentage(List<LineSummary> lineSummaries) {
