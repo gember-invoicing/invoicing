@@ -6,20 +6,33 @@ import nl.marcenschede.invoice.tariffs.VatRepository;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class InvoiceCreationFactory {
 
-    public static Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> invoiceCreationFactory(Company company, VatRepository vatRepository) {
-        return publisher -> invoiceCreationFactory(publisher, company, vatRepository);
+    public static Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> invoiceCreationFactory(
+            Supplier<Long> invoiceNumberGenerator,
+            Company company,
+            VatRepository vatRepository) {
+        return publisher -> invoiceCreationFactory(publisher, invoiceNumberGenerator, company, vatRepository);
     }
 
-    public static Consumer<InvoiceData> invoiceCreationFactory(Consumer<InvoiceCreationEvent> publisher, Company company, VatRepository vatRepository) {
-        return invoiceData -> createInvoice(invoiceData, publisher, company, vatRepository);
+    public static Consumer<InvoiceData> invoiceCreationFactory(
+            Consumer<InvoiceCreationEvent> publisher,
+            Supplier<Long> invoiceNumberGenerator,
+            Company company,
+            VatRepository vatRepository) {
+        return invoiceData -> createInvoice(invoiceData, publisher, invoiceNumberGenerator, company, vatRepository);
     }
 
-    public static void createInvoice(InvoiceData invoiceData, Consumer<InvoiceCreationEvent> publisher, Company company, VatRepository vatRepository) {
+    public static void createInvoice(
+            InvoiceData invoiceData,
+            Consumer<InvoiceCreationEvent> publisher,
+            Supplier<Long> invoiceNumberGenerator,
+            Company company, VatRepository vatRepository) {
+
         final InvoiceTotals totals = InvoiceCalculatorFactory.getInvoiceTotals(invoiceData, company, vatRepository);
 
-        publisher.accept(new InvoiceCreationEvent(invoiceData, totals));
+        publisher.accept(new InvoiceCreationEvent(invoiceData, invoiceNumberGenerator.get(), totals));
     }
 }

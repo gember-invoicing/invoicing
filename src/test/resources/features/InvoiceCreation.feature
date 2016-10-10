@@ -20,3 +20,10 @@ Feature: As CFO I want to make invoices definitive
     And Country of destination is "NL"
     When A "consumer" invoice is created at "2016-01-01"
     And An invoice creation event is created with total invoice amount is "327.00"
+
+  Scenario: Deliver goods in primary country (NL > NL)
+    Given A customer without a validated VAT id and default country is "NL"
+    And Country of origin is "NL"
+    And Country of destination is "NL"
+    When A "consumer" invoice is created at "2016-01-01"
+    And An invoice creation event is created with invoice number is "201601000016"

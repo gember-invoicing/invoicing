@@ -6,11 +6,11 @@ import cucumber.api.java.en.When;
 import nl.marcenschede.invoice.*;
 import nl.marcenschede.invoice.calculators.CountryOfDestinationHelper;
 import nl.marcenschede.invoice.calculators.CountryOfOriginHelper;
+import nl.marcenschede.invoice.data.VatRepositoryImpl;
 import nl.marcenschede.invoice.functional.InvoiceCalculatorFactory;
 import nl.marcenschede.invoice.functional.InvoiceCreationEvent;
 import nl.marcenschede.invoice.functional.InvoiceCreationFactory;
 import nl.marcenschede.invoice.functional.InvoiceData;
-import nl.marcenschede.invoice.tariffs.VatRepository;
 import nl.marcenschede.invoice.tariffs.VatTariff;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -182,7 +183,7 @@ public class Glue {
     @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
     public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
 
-        invoiceCalculatorFactory = InvoiceCalculatorFactory.getInvoiceCalculatorFactory(company, new VatRepository());
+        invoiceCalculatorFactory = InvoiceCalculatorFactory.getInvoiceCalculatorFactory(company, new VatRepositoryImpl());
 
         invoiceData = new InvoiceData();
         invoiceData.setCustomer(customer);
@@ -270,7 +271,7 @@ public class Glue {
 
         try {
             invoiceCalculatorFactory.apply(invoiceData);
-        } catch (VatRepository.VatPercentageNotFoundException nocs) {
+        } catch (VatRepositoryImpl.VatPercentageNotFoundException nocs) {
             return;
         }
 
@@ -309,7 +310,7 @@ public class Glue {
     public void an_invoice_creation_event_is_created() throws Throwable {
 
         final Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> consumerConsumerFunction =
-                InvoiceCreationFactory.invoiceCreationFactory(company, new VatRepository());
+                InvoiceCreationFactory.invoiceCreationFactory(getInvoiceCounter(), company, new VatRepositoryImpl());
 
         final Consumer consumer = mock(Consumer.class);
 
@@ -323,7 +324,7 @@ public class Glue {
     public void an_invoice_creation_event_is_created_with_total_invoice_amount_is(String expectedTotalAmountInclVat) throws Throwable {
 
         final Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> consumerConsumerFunction =
-                InvoiceCreationFactory.invoiceCreationFactory(company, new VatRepository());
+                InvoiceCreationFactory.invoiceCreationFactory(getInvoiceCounter(), company, new VatRepositoryImpl());
 
         final Consumer consumer = mock(Consumer.class);
         ArgumentCaptor<InvoiceCreationEvent> eventArgumentCaptor = ArgumentCaptor.forClass(InvoiceCreationEvent.class);
@@ -336,5 +337,31 @@ public class Glue {
                 eventArgumentCaptor.getValue().getInvoiceTotals().totalInvoiceAmountInclVat,
                 is(new BigDecimal(expectedTotalAmountInclVat)) );
 
+    }
+
+    @When("^An invoice creation event is created with invoice number is \"([^\"]*)\"$")
+    public void an_invoice_creation_event_is_created_with_invoice_number_is(String expectedInvoiceNumber) throws Throwable {
+        final Function<Consumer<InvoiceCreationEvent>, Consumer<InvoiceData>> consumerConsumerFunction =
+                InvoiceCreationFactory.invoiceCreationFactory(getInvoiceCounter(), company, new VatRepositoryImpl());
+
+        final Consumer consumer = mock(Consumer.class);
+        ArgumentCaptor<InvoiceCreationEvent> eventArgumentCaptor = ArgumentCaptor.forClass(InvoiceCreationEvent.class);
+        doNothing().when(consumer).accept(eventArgumentCaptor.capture());
+
+        final Consumer<InvoiceData> eventConsumer = consumerConsumerFunction.apply(consumer);
+        eventConsumer.accept(invoiceData);
+
+        assertThat(
+                eventArgumentCaptor.getValue().getInvoiceNumber(),
+                is(new Long(expectedInvoiceNumber)) );
+    }
+
+    public Supplier<Long> getInvoiceCounter() {
+        return new Supplier<Long>() {
+            @Override
+            public Long get() {
+                return 201601000016L;
+            }
+        };
     }
 }
