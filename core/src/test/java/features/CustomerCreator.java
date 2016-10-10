@@ -25,6 +25,11 @@ public class CustomerCreator {
             public Optional<String> getEuTaxId() {
                 return Optional.ofNullable(vatId);
             }
+
+            @Override
+            public Long getCustomerDebtorId() {
+                return 2345L;
+            }
         };
     }
 }

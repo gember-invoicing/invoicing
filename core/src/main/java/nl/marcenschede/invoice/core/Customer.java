@@ -6,4 +6,6 @@ public interface Customer {
     Optional<String> getDefaultCountry();
 
     Optional<String> getEuTaxId();
+
+    Long getCustomerDebtorId();
 }

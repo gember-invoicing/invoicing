@@ -56,7 +56,7 @@ public class LedgerEventCreator implements Consumer<InvoiceCreationEvent> {
 
         try {
             logger.log(
-                    Level.FINE,
+                    Level.WARNING,
                     String.format("Ledger event created:  %s", objectMapper.writeValueAsString(ledgerEvent)));
         } catch (JsonProcessingException e) {
             throw new JsonException(e);
