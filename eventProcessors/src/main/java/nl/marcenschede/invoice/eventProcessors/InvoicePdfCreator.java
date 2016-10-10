@@ -48,6 +48,17 @@ public class InvoicePdfCreator implements Consumer<InvoiceCreationEvent> {
                 contentStream.setFont( font, 12 );
                 contentStream.moveTextPositionByAmount( 100, 700 );
                 contentStream.drawString( String.format("Factuur voor debiteur: %s", invoiceCreationEvent.getCustomer().getCustomerDebtorId()) );
+                contentStream.moveTextPositionByAmount( 0, -15 );
+
+                invoiceCreationEvent.getInvoiceTotals().lineSummaries
+                        .forEach(lineSummary -> {
+                            try {
+                                contentStream.moveTextPositionByAmount( 0, -15 );
+                                contentStream.drawString( String.format("Invoice line, ex VAT %s, VAT %s, in VAT %s", lineSummary.getAmountExclVat().toString(), lineSummary.getAmountVat().toString(), lineSummary.getAmountInclVat().toString()) );
+                            } catch (IOException e) {
+                                throw new InvoicePdfCreatorException(e);
+                            }
+                        });
 
                 contentStream.moveTextPositionByAmount( 0, -30 );
                 contentStream.drawString( String.format("Totaal ex BTW is %s", invoiceCreationEvent.getInvoiceTotals().totalInvoiceAmountExclVat.toString()) );
@@ -87,14 +98,14 @@ public class InvoicePdfCreator implements Consumer<InvoiceCreationEvent> {
         document.close();
     }
 
+    private void log(String invoiceFilename) {
+        logger.log(Level.WARNING, String.format("Created invoice: %s", invoiceFilename));
+    }
+
     private class InvoicePdfCreatorException extends RuntimeException {
         public InvoicePdfCreatorException(Exception e) {
             super(e);
         }
-    }
-
-    private void log(String invoiceFilename) {
-        logger.log(Level.WARNING, String.format("Created invoice: %s", invoiceFilename));
     }
 
 }
