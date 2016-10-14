@@ -1,7 +1,6 @@
 package nl.marcenschede.invoice.eventProcessors;
 
 import nl.marcenschede.invoice.core.functional.InvoiceCreationEvent;
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
@@ -9,33 +8,11 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class InvoicePdfCreator implements Consumer<InvoiceCreationEvent> {
+class InvoicePdfCreatorHelper {
 
-    private static Logger logger = Logger.getLogger(DebtorBookEventCreator.class.getName());
-
-    @Override
-    public void accept(InvoiceCreationEvent invoiceCreationEvent) {
-        final String invoiceFilename = String.format("target/invoice%d.pdf", invoiceCreationEvent.getInvoiceNumber());
-
-        final Consumer<PDDocument> documentSaver = createDocumentSaver(invoiceFilename);
-        final Function<PDDocument, PDDocument> documentCreator = createDocumentCreator(invoiceCreationEvent);
-
-        try {
-            createPdfDocument(documentCreator, documentSaver);
-        } catch (IOException e) {
-            throw new InvoicePdfCreatorException(e);
-        }
-
-        log(invoiceFilename);
-
-    }
-
-    private Function<PDDocument, PDDocument> createDocumentCreator(InvoiceCreationEvent invoiceCreationEvent) {
+    static Function<PDDocument, PDDocument> createDocumentCreator(InvoiceCreationEvent invoiceCreationEvent) {
         return document -> {
             try {
                 PDPage page = new PDPage();
@@ -56,7 +33,7 @@ public class InvoicePdfCreator implements Consumer<InvoiceCreationEvent> {
                                 contentStream.moveTextPositionByAmount( 0, -15 );
                                 contentStream.drawString( String.format("Invoice line, ex VAT %s, VAT %s, in VAT %s", lineSummary.getAmountExclVat().toString(), lineSummary.getAmountVat().toString(), lineSummary.getAmountInclVat().toString()) );
                             } catch (IOException e) {
-                                throw new InvoicePdfCreatorException(e);
+                                throw new InvoicePdfCreatorHelper.InvoicePdfCreatorException(e);
                             }
                         });
 
@@ -75,37 +52,16 @@ public class InvoicePdfCreator implements Consumer<InvoiceCreationEvent> {
 
                 return document;
             } catch (IOException e) {
-                throw new InvoicePdfCreatorException(e);
+                throw new InvoicePdfCreatorHelper.InvoicePdfCreatorException(e);
             }
         };
     }
 
-    private Consumer<PDDocument> createDocumentSaver(String filename) {
-        return pdDocument -> {
-            try {
-                pdDocument.save(filename);
-            } catch (IOException e) {
-                throw new InvoicePdfCreatorException(e);
-            } catch (COSVisitorException e) {
-                throw new InvoicePdfCreatorException(e);
-            }
-        };
-    }
-
-    private void createPdfDocument(Function<PDDocument, PDDocument> creator, Consumer<PDDocument> saver) throws IOException {
-        PDDocument document = new PDDocument();
-        saver.accept(creator.apply(document));
-        document.close();
-    }
-
-    private void log(String invoiceFilename) {
-        logger.log(Level.WARNING, String.format("Created invoice: %s", invoiceFilename));
-    }
-
-    private class InvoicePdfCreatorException extends RuntimeException {
-        public InvoicePdfCreatorException(Exception e) {
+    static class InvoicePdfCreatorException extends RuntimeException {
+        InvoicePdfCreatorException(Exception e) {
             super(e);
         }
     }
+
 
 }

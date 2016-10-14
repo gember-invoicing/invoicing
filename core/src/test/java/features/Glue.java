@@ -7,10 +7,7 @@ import nl.marcenschede.invoice.core.*;
 import nl.marcenschede.invoice.core.calculators.CountryOfDestinationHelper;
 import nl.marcenschede.invoice.core.calculators.CountryOfOriginHelper;
 import nl.marcenschede.invoice.core.data.VatRepositoryImpl;
-import nl.marcenschede.invoice.core.functional.InvoiceCalculatorFactory;
-import nl.marcenschede.invoice.core.functional.InvoiceCreationEvent;
-import nl.marcenschede.invoice.core.functional.InvoiceCreationFactory;
-import nl.marcenschede.invoice.core.functional.InvoiceData;
+import nl.marcenschede.invoice.core.functional.*;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -39,7 +36,7 @@ public class Glue {
     private Company company;
     private Customer customer;
     private Function<InvoiceData, InvoiceTotals> invoiceCalculatorFactory;
-    private InvoiceData invoiceData;
+    private InvoiceDataImpl invoiceData;
 
     @Given("^A company in \"([^\"]*)\" with vat calculation policy is \"([^\"]*)\"$")
     public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String primaryCountry,
@@ -107,7 +104,7 @@ public class Glue {
 
         invoiceCalculatorFactory = InvoiceCalculatorFactory.getInvoiceCalculatorFactory(company, new VatRepositoryImpl());
 
-        invoiceData = new InvoiceData();
+        invoiceData = new InvoiceDataImpl();
         invoiceData.setCustomer(customer);
         invoiceData.setInvoiceType(InvoiceType.valueOf(invoiceTypeVal.toUpperCase()));
         invoiceData.setCountryOfOrigin(productOrigin);
@@ -278,7 +275,7 @@ public class Glue {
                 is(new Long(expectedInvoiceNumber)));
     }
 
-    public Supplier<Long> getInvoiceCounter() {
+    private Supplier<Long> getInvoiceCounter() {
         return new InvoiceNumerGeneratorCreator().invoke();
     }
 

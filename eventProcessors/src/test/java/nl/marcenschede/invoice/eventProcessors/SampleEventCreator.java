@@ -6,14 +6,15 @@ import nl.marcenschede.invoice.core.LineSummary;
 import nl.marcenschede.invoice.core.VatAmountSummary;
 import nl.marcenschede.invoice.core.functional.InvoiceCreationEvent;
 import nl.marcenschede.invoice.core.functional.InvoiceData;
+import nl.marcenschede.invoice.core.functional.InvoiceDataImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class SampleEventCreator {
-    public InvoiceCreationEvent invoke() {
+class SampleEventCreator {
+    InvoiceCreationEvent invoke() {
         InvoiceTotals invoiceTotals = new InvoiceTotalsCreator().invoke();
         InvoiceData invoiceData = new InvoiceDataCreator().invoke();
 
@@ -21,15 +22,15 @@ public class SampleEventCreator {
     }
 
     private class InvoiceDataCreator {
-        public InvoiceData invoke() {
-            InvoiceData invoiceData = new InvoiceData();
+        InvoiceData invoke() {
+            InvoiceDataImpl invoiceData = new InvoiceDataImpl();
             invoiceData.setCustomer(new CustomerDataCreator().invoke());
             return invoiceData;
         }
     }
 
     private class CustomerDataCreator {
-        public Customer invoke() {
+        Customer invoke() {
             return new Customer() {
                 @Override
                 public Optional<String> getDefaultCountry() {
@@ -50,7 +51,7 @@ public class SampleEventCreator {
     }
 
     private class InvoiceTotalsCreator {
-        public InvoiceTotals invoke() {
+        InvoiceTotals invoke() {
             List<LineSummary> lineSummaries = new ArrayList<>();
 
             VatAmountSummary vatAmountSummary = new SampleVatAmountSummaryCreator().invoke();
@@ -61,7 +62,7 @@ public class SampleEventCreator {
         }
 
         private class SampleVatAmountSummaryCreator {
-            public VatAmountSummary invoke() {
+            VatAmountSummary invoke() {
                 return new VatAmountSummary(null,
                                 new BigDecimal("21.00"), new BigDecimal("100.00"), new BigDecimal("121.00") );
             }
