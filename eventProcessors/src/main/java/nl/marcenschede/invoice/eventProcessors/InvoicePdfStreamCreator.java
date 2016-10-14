@@ -11,12 +11,12 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class InvoicePdfStreamCreator implements Consumer<InvoiceCreationEvent> {
+public class InvoicePdfStreamCreator implements Consumer<InvoiceCreationEvent> {
 
     private static Logger logger = Logger.getLogger(DebtorBookEventCreator.class.getName());
     private final OutputStream stream;
 
-    static Consumer<InvoiceCreationEvent> create(OutputStream stream) {
+    public static Consumer<InvoiceCreationEvent> create(OutputStream stream) {
         return new InvoicePdfStreamCreator(stream);
     }
 
