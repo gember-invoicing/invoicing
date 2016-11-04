@@ -5,18 +5,33 @@ import java.time.LocalDate;
 
 public class CountryTariffPeriodPercentageTuple {
 
-    private String isoCountryCode;
-    private VatTariff vatTariff;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private BigDecimal percentage;
+    final private Boolean vatShifted;
+    final private String isoCountryCode;
+    final private VatTariff vatTariff;
+    final private LocalDate startDate;
+    final private LocalDate endDate;
+    final private BigDecimal percentage;
 
-    public CountryTariffPeriodPercentageTuple(String isoCountryCode, VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
+    public CountryTariffPeriodPercentageTuple(Boolean vatShifted,
+                                              String isoCountryCode,
+                                              VatTariff vatTariff,
+                                              LocalDate startDate,
+                                              LocalDate endDate,
+                                              BigDecimal percentage) {
+        this.vatShifted = vatShifted;
         this.isoCountryCode = isoCountryCode;
         this.vatTariff = vatTariff;
         this.startDate = startDate;
         this.endDate = endDate;
         this.percentage = percentage;
+    }
+
+    public CountryTariffPeriodPercentageTuple(String landcode,
+                                              VatTariff vatTariff,
+                                              LocalDate startDate,
+                                              LocalDate endDate,
+                                              BigDecimal percentage) {
+        this(false, landcode, vatTariff, startDate, endDate, percentage);
     }
 
     public String getIsoCountryCode() {
@@ -37,6 +52,10 @@ public class CountryTariffPeriodPercentageTuple {
 
     public BigDecimal getPercentage() {
         return percentage;
+    }
+
+    public Boolean getVatShifted() {
+        return vatShifted;
     }
 
     @Override

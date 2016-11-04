@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public class CompanyGenerator {
     private final String primaryCountry;
-    private final String vatPolicy;
+    private final VatCalculationPolicy vatCalculationPolicy;
 
     public CompanyGenerator(String primaryCountry, String vatPolicy) {
         this.primaryCountry = primaryCountry;
-        this.vatPolicy = vatPolicy;
+        this.vatCalculationPolicy = VatCalculationPolicy.valueOf(vatPolicy);
     }
 
     public Company invoke() {
@@ -22,7 +22,7 @@ public class CompanyGenerator {
 
             @Override
             public VatCalculationPolicy getVatCalculationPolicy() {
-                return VatCalculationPolicy.valueOf(vatPolicy);
+                return vatCalculationPolicy;
             }
 
             @Override

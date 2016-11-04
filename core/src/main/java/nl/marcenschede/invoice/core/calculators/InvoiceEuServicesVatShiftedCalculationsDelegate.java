@@ -4,19 +4,28 @@ import nl.marcenschede.invoice.core.Invoice;
 import nl.marcenschede.invoice.core.InvoiceLine;
 import nl.marcenschede.invoice.core.LineSummary;
 import nl.marcenschede.invoice.core.VatAmountSummary;
+import nl.marcenschede.invoice.core.tariffs.CountryTariffPeriodPercentageTuple;
+import nl.marcenschede.invoice.core.tariffs.VatRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
 
-class InvoiceEuServicesVatShiftedCalculationsDelegate extends InvoiceCalculationsDelegate {
-    InvoiceEuServicesVatShiftedCalculationsDelegate(Invoice invoice) {
-        super(invoice);
+import static nl.marcenschede.invoice.core.BigDecimalHelper.ZERO;
+
+class InvoiceEuServicesVatShiftedCalculationsDelegate extends InvoiceCalculationsForVatShiftedDelegate {
+    InvoiceEuServicesVatShiftedCalculationsDelegate(Invoice invoice, VatRepository vatRepository) {
+        super(invoice, vatRepository);
     }
 
     @Override
     public BigDecimal getTotalInvoiceAmountInclVat(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> amountSummaryCalculator) {
         return getTotalInvoiceAmountExclVat(lineSummaries, amountSummaryCalculator);
+    }
+
+    @Override
+    public BigDecimal getTotalInvoiceAmountExclVatOnTotals(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> vatCalculator) {
+        return ZERO;
     }
 
     @Override
@@ -34,5 +43,17 @@ class InvoiceEuServicesVatShiftedCalculationsDelegate extends InvoiceCalculation
     @Override
     public String getVatDeclarationCountry() {
         return CountryOfOriginHelper.getOriginCountry(invoice);
+    }
+
+    @Override
+    public CountryTariffPeriodPercentageTuple createCountryTariffPeriodPercentageTupleForCalcationStratery(
+            CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
+        return new CountryTariffPeriodPercentageTuple(
+                true,
+                countryTariffPeriodPercentageTuple.getIsoCountryCode(),
+                countryTariffPeriodPercentageTuple.getVatTariff(),
+                countryTariffPeriodPercentageTuple.getStartDate(),
+                countryTariffPeriodPercentageTuple.getEndDate(),
+                countryTariffPeriodPercentageTuple.getPercentage());
     }
 }

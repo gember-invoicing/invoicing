@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -35,7 +36,7 @@ public class Glue {
 
     private Company company;
     private Customer customer;
-    private Function<InvoiceData, InvoiceTotals> invoiceCalculatorFactory;
+    private Function<InvoiceData, InvoiceTotals> invoiceCalculator;
     private InvoiceDataImpl invoiceData;
 
     @Given("^A company in \"([^\"]*)\" with vat calculation policy is \"([^\"]*)\"$")
@@ -102,7 +103,7 @@ public class Glue {
     @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
     public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
 
-        invoiceCalculatorFactory = InvoiceCalculatorFactory.getInvoiceCalculatorFactory(company, new VatRepositoryImpl());
+        invoiceCalculator = InvoiceCalculatorFactory.getInvoiceCalculatorFactory(company, new VatRepositoryImpl());
 
         invoiceData = new InvoiceDataImpl();
         invoiceData.setCustomer(customer);
@@ -116,10 +117,10 @@ public class Glue {
 
     @Then("^The total amount including VAT is \"([^\"]*)\"$")
     public void the_total_amount_including_VAT_is(String expectedTotalAmountIncludingVat) throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
-        final InvoiceTotals totals = invoiceCalculatorFactory.apply(invoiceData);
+        final InvoiceTotals totals = invoiceCalculator.apply(invoiceData);
 
         assertThat(totals.totalInvoiceAmountInclVat, is(new BigDecimal(expectedTotalAmountIncludingVat)));
     }
@@ -127,55 +128,66 @@ public class Glue {
 
     @Then("^The total amount excluding VAT is \"([^\"]*)\"$")
     public void the_total_amount_excluding_VAT_is(String expectedTotalAmountExclVat) throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
-        final InvoiceTotals totals = invoiceCalculatorFactory.apply(invoiceData);
+        final InvoiceTotals totals = invoiceCalculator.apply(invoiceData);
 
         assertThat(totals.totalInvoiceAmountExclVat, is(new BigDecimal(expectedTotalAmountExclVat)));
     }
 
     @Then("^The total amount VAT is \"([^\"]*)\"$")
     public void the_total_amount_VAT_is(String expectedTotalAmountVat) throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
-        final InvoiceTotals totals = invoiceCalculatorFactory.apply(invoiceData);
+        final InvoiceTotals totals = invoiceCalculator.apply(invoiceData);
 
         assertThat(totals.invoiceTotalVat, is(new BigDecimal(expectedTotalAmountVat)));
     }
 
-    @Then("^The VAT amount for percentage \"([^\"]*)\" is \"([^\"]*)\"$")
-    public void the_VAT_amount_for_percentage_is(String percentage, String expectedAmount) throws Throwable {
-        assert invoiceCalculatorFactory != null;
+    @Then("^The VAT amount for percentage \"([^\"]*)\" is \"([^\"]*)\" for VAT, \"([^\"]*)\" for exVAT and \"([^\"]*)\" for inVAT$")
+    public void the_VAT_amount_for_percentage_is_for_VAT_for_exVAT_and_for_inVAT(String percentage,
+                                                                                 String expectedAmountVat,
+                                                                                 String expedtedAmountExVat,
+                                                                                 String expectedAmountInVat) throws Throwable {
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
-        final InvoiceTotals totals = invoiceCalculatorFactory.apply(invoiceData);
+        final InvoiceTotals totals = invoiceCalculator.apply(invoiceData);
 
-        Optional<BigDecimal> actualAmount =
+        Optional<VatAmountSummary> actualAmount =
                 totals.vatAmountSummaryPerPercentage.entrySet().stream()
                         .filter(entry -> entry.getKey().getPercentage().equals(new BigDecimal(percentage)))
-                        .map(entry -> entry.getValue().getAmountVat())
+                        .map(Map.Entry::getValue)
                         .findFirst();
 
         assertThat(actualAmount.isPresent(), is(true));
-        assertThat(actualAmount.get(), is(new BigDecimal(expectedAmount)));
+        assertThat(actualAmount.get().getAmountVat(), is(new BigDecimal(expectedAmountVat)));
+        assertThat(actualAmount.get().getAmountExclVat(), is(new BigDecimal(expedtedAmountExVat)));
+        assertThat(actualAmount.get().getAmountInclVat(), is(new BigDecimal(expectedAmountInVat)));
     }
 
-    @Then("^Invoice is attributed as VAT Shifted$")
-    public void invoice_is_attributed_as_VAT_Shifted() throws Throwable {
+    @Then("^There are no VAT subtotal lines$")
+    public void there_are_no_VAT_subtotal_lines() throws Throwable {
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
-        assertThat(invoiceData.getVatShifted(), is(true));
+        final InvoiceTotals totals = invoiceCalculator.apply(invoiceData);
+
+        boolean anyMatch = totals.vatAmountSummaryPerPercentage.entrySet().stream()
+                .anyMatch(entry -> entry.getKey().getVatShifted().equals(false));
+
+        assertThat(anyMatch, is(false));
     }
 
     @Then("^The invoice calculation request throws an no origin country set exception$")
     public void the_invoice_calculation_VAT_request_throws_an_no_origin_country_set_exception() throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
         try {
-            invoiceCalculatorFactory.apply(invoiceData);
+            invoiceCalculator.apply(invoiceData);
         } catch (CountryOfOriginHelper.NoOriginCountrySetException nocs) {
             return;
         }
@@ -185,11 +197,11 @@ public class Glue {
 
     @Then("^The invoice calculation request throws an vat percentage not found exception$")
     public void the_invoice_calculation_request_throws_an_vat_percentage_not_found_exception() throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
         try {
-            invoiceCalculatorFactory.apply(invoiceData);
+            invoiceCalculator.apply(invoiceData);
         } catch (VatRepositoryImpl.VatPercentageNotFoundException nocs) {
             return;
         }
@@ -199,11 +211,11 @@ public class Glue {
 
     @Then("^The invoice calculation request throws an no registration in origin country exception$")
     public void the_invoice_calculation_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
         try {
-            invoiceCalculatorFactory.apply(invoiceData);
+            invoiceCalculator.apply(invoiceData);
         } catch (InvoiceImpl.NoRegistrationInOriginCountryException e) {
             return;
         }
@@ -213,11 +225,11 @@ public class Glue {
 
     @Then("^The invoice calculation request throws an no destination country set exception$")
     public void the_invoice_calculation_request_throws_an_no_destination_country_set_exception() throws Throwable {
-        assert invoiceCalculatorFactory != null;
+        assert invoiceCalculator != null;
         assert invoiceData != null;
 
         try {
-            invoiceCalculatorFactory.apply(invoiceData);
+            invoiceCalculator.apply(invoiceData);
         } catch (CountryOfDestinationHelper.NoDestinationCountrySetException e) {
             return;
         }

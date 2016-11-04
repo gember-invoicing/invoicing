@@ -1,7 +1,7 @@
 Feature: As CFO I want to make invoices definitive
 
   Background:
-    Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_ON_TOTAL"
+    Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_PER_LINE"
     And the company has VAT id "NL0123456789B01" in "NL"
     And An invoiceline worth "121.00" euro "incl" VAT with "High" vat level and referencedate is "2016-01-01"
     And An invoiceline worth "106.00" euro "incl" VAT with "Low1" vat level and referencedate is "2016-01-01"
