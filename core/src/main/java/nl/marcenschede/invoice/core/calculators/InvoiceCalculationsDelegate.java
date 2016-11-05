@@ -70,12 +70,9 @@ public abstract class InvoiceCalculationsDelegate {
     }
 
     private Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> calculateSubTotals(List<LineSummary> lineSummaries) {
-        Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> vatAmountSummaryPerPercentage =
-                invoice.getCompany().getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_PER_LINE ?
-                        getVatAmountSummaryPerPercentagePerLine(lineSummaries) :
-                        getVatAmountSummaryPerPercentageOnSubTotals(lineSummaries);
-
-        return vatAmountSummaryPerPercentage;
+        return invoice.getCompany().getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_PER_LINE ?
+                getVatAmountSummaryPerPercentagePerLine(lineSummaries) :
+                getVatAmountSummaryPerPercentageOnSubTotals(lineSummaries);
     }
 
     private Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> getVatAmountSummaryPerPercentagePerLine(List<LineSummary> lineSummaries) {
@@ -98,22 +95,13 @@ public abstract class InvoiceCalculationsDelegate {
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         optionalListEntry -> {
                             BigDecimal totalInclVat = optionalListEntry.getValue().stream()
-                                    .map(x -> x.getAmountInclVat())
+                                    .map(VatAmountSummary::getAmountInclVat)
                                     .reduce(ZERO, BigDecimal::add);
 
-                            BigDecimal factor = BigDecimalHelper.ZERO;
-
-                            switch (optionalListEntry.getKey().getVatTariff()) {
-                                case HIGH:
-                                    factor = new BigDecimal("21.00").divide(new BigDecimal("121.00"), 10, BigDecimal.ROUND_HALF_UP);
-                                    break;
-                                case LOW1:
-                                    factor = new BigDecimal("6.00").divide(new BigDecimal("106.00"), 10, BigDecimal.ROUND_HALF_UP);
-                                    break;
-                                case ZERO:
-                                    factor = ZERO;
-                                    break;
-                            }
+                            BigDecimal numerator = optionalListEntry.getKey().getPercentage();
+                            BigDecimal denominator = new BigDecimal("100.00")
+                                    .add(optionalListEntry.getKey().getPercentage());
+                            BigDecimal factor = numerator.divide(denominator, 10, BigDecimal.ROUND_HALF_UP);
 
                             BigDecimal totalVat = totalInclVat.multiply(factor).setScale(2, BigDecimal.ROUND_HALF_UP);
                             BigDecimal totalExVat = totalInclVat.subtract(totalVat);
@@ -138,10 +126,25 @@ public abstract class InvoiceCalculationsDelegate {
     private InvoiceTotals calculateInvoieTotals(List<LineSummary> lineSummaries, Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> vatAmountSummaryPerPercentage) {
 
         return new InvoiceTotals(
-                vatAmountSummaryPerPercentage.values().stream().map(x -> x.getAmountExclVat()).reduce(ZERO, BigDecimal::add),
-                vatAmountSummaryPerPercentage.values().stream().map(x -> x.getAmountVat()).reduce(ZERO, BigDecimal::add),
-                vatAmountSummaryPerPercentage.values().stream().map(x -> x.getAmountInclVat()).reduce(ZERO, BigDecimal::add),
+                calculateTotalAmountExclVat(vatAmountSummaryPerPercentage),
+                calculateTotalAmountVat(vatAmountSummaryPerPercentage),
+                calculateTotalAmountInclVat(vatAmountSummaryPerPercentage),
                 vatAmountSummaryPerPercentage,
                 lineSummaries);
+    }
+
+    private BigDecimal calculateTotalAmountInclVat(Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> vatAmountSummaryPerPercentage) {
+        return vatAmountSummaryPerPercentage.values().stream()
+                .map(VatAmountSummary::getAmountInclVat).reduce(ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateTotalAmountVat(Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> vatAmountSummaryPerPercentage) {
+        return vatAmountSummaryPerPercentage.values().stream()
+                .map(VatAmountSummary::getAmountVat).reduce(ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateTotalAmountExclVat(Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> vatAmountSummaryPerPercentage) {
+        return vatAmountSummaryPerPercentage.values().stream()
+                .map(VatAmountSummary::getAmountExclVat).reduce(ZERO, BigDecimal::add);
     }
 }
