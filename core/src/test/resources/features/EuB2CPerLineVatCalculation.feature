@@ -64,6 +64,8 @@ Feature: As a salesman I want to deliver goods and services to customers in othe
       | 806.00             | 695.84           | 110.16         | 0.00          | 0.00      | 100.00      | 100.00      |
 
   Scenario: Invoice goods to a B2C customer in another EU country (BE > NL) and no destination is not given
+    Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_PER_LINE"
+    And the company has VAT id "NL0123456789B01" in "NL"
     Given the company has VAT id "BE0123456789B01" in "BE"
     And A customer without a validated VAT id and default country is ""
     And Country of origin is "BE"
