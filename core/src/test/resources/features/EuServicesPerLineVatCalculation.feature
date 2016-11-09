@@ -1,4 +1,4 @@
-Feature: as a salesman I want to sell invoice products to countries outside the EU
+Feature: as a salesman I want to sell and invoice services to B2B customer in other EU countries
 
   Background:
     Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_PER_LINE"
@@ -12,10 +12,12 @@ Feature: as a salesman I want to sell invoice products to countries outside the 
     And An invoiceline worth "106.00" euro "incl" VAT with "Low1" vat level and referencedate is "2016-01-01"
     And An invoiceline worth "100.00" euro "incl" VAT with "Zero" vat level and referencedate is "2016-01-01"
 
-  Scenario Outline: Deliver goods in primary country (NL > NO)
-    Given A customer without a validated VAT id and default country is "NL"
+  Scenario Outline: Invoice services (NL -> DE)
+    Given the company has VAT id "DE0123456789B01" in "DE"
+    And A customer with VAT id "DE67890" and default country is "DE"
     And Country of origin is "NL"
-    And Country of destination is "NO"
+    And Country of destination is "DE"
+    And The product category is "SERVICES"
     When A "consumer" invoice is created at "2016-01-01"
     Then The total amount including VAT is "<totalAmountInclVat>"
     And The total amount excluding VAT is "<totalAmountExVat>"
@@ -28,12 +30,25 @@ Feature: as a salesman I want to sell invoice products to countries outside the 
       | 806.00             | 695.84           | 110.16         | 6.00          | 6.00      | 100.00      | 106.00      |
       | 806.00             | 695.84           | 110.16         | 0.00          | 0.00      | 100.00      | 100.00      |
 
-  Scenario Outline: Deliver goods in primary country (NL > NO)
-    Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_ON_TOTAL"
-    And the company has VAT id "NL0123456789B01" in "NL"
-    Given A customer without a validated VAT id and default country is "NL"
+  Scenario: Invoice services (NL -> DE) with VAT shifted
+    Given the company has VAT id "DE0123456789B01" in "DE"
+    And A customer with VAT id "DE67890" and default country is "DE"
     And Country of origin is "NL"
-    And Country of destination is "NO"
+    And Country of destination is "DE"
+    And The product category is "SERVICES"
+    And Vat is shifted
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "695.84"
+    And The total amount excluding VAT is "695.84"
+    And The total amount VAT is "0.00"
+    And There are no VAT subtotal lines
+
+  Scenario Outline: Invoice E-services (NL -> DE)
+    Given the company has VAT id "DE0123456789B01" in "DE"
+    And A customer with VAT id "DE67890" and default country is "DE"
+    And Country of origin is "NL"
+    And Country of destination is "DE"
+    And The product category is "E_SERVICES"
     When A "consumer" invoice is created at "2016-01-01"
     Then The total amount including VAT is "<totalAmountInclVat>"
     And The total amount excluding VAT is "<totalAmountExVat>"
@@ -42,23 +57,20 @@ Feature: as a salesman I want to sell invoice products to countries outside the 
 
     Examples:
       | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat | amountExVat | amountInVat |
-      | 806.00             | 695.87           | 110.13         | 21.00         | 104.13    | 495.87      | 600.00      |
-      | 806.00             | 695.87           | 110.13         | 6.00          | 6.00      | 100.00      | 106.00      |
-      | 806.00             | 695.87           | 110.13         | 0.00          | 0.00      | 100.00      | 100.00      |
+      | 806.00             | 703.25           | 102.75         | 19.00         | 95.82     | 504.18      | 600.00      |
+      | 806.00             | 703.25           | 102.75         | 7.00          | 6.93      | 99.07       | 106.00      |
+      | 806.00             | 703.25           | 102.75         | 0.00          | 0.00      | 100.00      | 100.00      |
 
-
-
-
-#    TODO; klant heeft geldig BTW nummer maar levering is buiten EU. Dus export. Dus BTW berekenen.
-
-  Scenario: Deliver goods in primary country (NL > NO) with VAT shifted
-    Given A customer without a validated VAT id and default country is "NL"
+  Scenario: Invoice E-services (NL -> DE) with VAT shifted
+    Given the company has VAT id "DE0123456789B01" in "DE"
+    And A customer with VAT id "DE67890" and default country is "DE"
     And Country of origin is "NL"
-    And Country of destination is "NO"
+    And Country of destination is "DE"
+    And The product category is "E_SERVICES"
     And Vat is shifted
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT is "695.84"
-    And The total amount excluding VAT is "695.84"
+    Then The total amount including VAT is "703.25"
+    And The total amount excluding VAT is "703.25"
     And The total amount VAT is "0.00"
     And There are no VAT subtotal lines
 

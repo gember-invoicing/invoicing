@@ -1,22 +1,15 @@
 package nl.marcenschede.invoice.core;
 
-import nl.marcenschede.invoice.core.calcs.VatAmountSummaryFactory;
 import nl.marcenschede.invoice.core.calculators.InvoiceCalculationsDelegate;
 import nl.marcenschede.invoice.core.calculators.InvoiceCalculationsDelegateFactory;
-import nl.marcenschede.invoice.core.tariffs.CountryTariffPeriodPercentageTuple;
 import nl.marcenschede.invoice.core.tariffs.VatRepository;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class InvoiceImpl implements Invoice {
     private final VatRepository vatRepository;
-    private final Function<String, Function<? super InvoiceLine, VatAmountSummary>> vatCalculatorForVatDeclarationCountry;
 
     private Company company;
     private Customer customer;
@@ -29,10 +22,6 @@ public class InvoiceImpl implements Invoice {
 
     public InvoiceImpl(VatRepository vatRepository) {
         this.vatRepository = vatRepository;
-
-        Function<VatRepository, Function<String, Function<? super InvoiceLine, VatAmountSummary>>> vatCalculatorFactory =
-                VatAmountSummaryFactory.createVatCalculatorWith2();
-        vatCalculatorForVatDeclarationCountry = vatCalculatorFactory.apply(vatRepository);
     }
 
     @Override
@@ -55,6 +44,11 @@ public class InvoiceImpl implements Invoice {
     public void setCustomer(Customer customer) {
 
         this.customer = customer;
+    }
+
+    @Override
+    public InvoiceType getInvoiceType() {
+        return invoiceType;
     }
 
     @Override
@@ -117,54 +111,10 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public InvoiceTotals getInvoiceTotals() {
-        InvoiceCalculationsDelegate calculationsHelper = InvoiceCalculationsDelegateFactory.newInstance(this);
+        InvoiceCalculationsDelegate calculationsHelper =
+                InvoiceCalculationsDelegateFactory.newInstance(this, vatRepository);
 
-        calculationsHelper.checkInvoiceValidity();
-
-        return calculateInvoiceTotals(calculationsHelper);
-    }
-
-    private InvoiceTotals calculateInvoiceTotals(InvoiceCalculationsDelegate calculationsHelper) {
-        Function<? super InvoiceLine, VatAmountSummary> vatCalculator =
-                vatCalculatorForVatDeclarationCountry.apply(calculationsHelper.getVatDeclarationCountry());
-
-        List<LineSummary> lineSummaries =
-                calculationsHelper.getLineSummaries(vatCalculator);
-
-        Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> vatAmountSummaryPerPercentage =
-                getVatAmountSummaryPerPercentage(lineSummaries);
-
-        return new InvoiceTotals(
-                calculationsHelper.getTotalInvoiceAmountExclVat(lineSummaries, vatCalculator),
-                calculationsHelper.getInvoiceTotalVat(lineSummaries, vatCalculator),
-                calculationsHelper.getTotalInvoiceAmountInclVat(lineSummaries, vatCalculator),
-                vatAmountSummaryPerPercentage,
-                lineSummaries);
-    }
-
-    private Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> getVatAmountSummaryPerPercentage(List<LineSummary> lineSummaries) {
-
-        Map<CountryTariffPeriodPercentageTuple, List<LineSummary>> mapOfInvoiceLinesPerVatPercentage = getMapOfCountryTariffPeriodPercentageTuples(lineSummaries);
-
-        return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        optionalListEntry -> sumAmountsToVatAmountSummary(
-                                optionalListEntry.getKey(),
-                                optionalListEntry.getValue())));
-    }
-
-    private Map<CountryTariffPeriodPercentageTuple, List<LineSummary>> getMapOfCountryTariffPeriodPercentageTuples(List<LineSummary> lineSummaries) {
-        return lineSummaries.stream()
-                .collect(Collectors.groupingBy(VatAmountSummary::getCountryTariffPeriodPercentageTuple));
-    }
-
-    private VatAmountSummary sumAmountsToVatAmountSummary(CountryTariffPeriodPercentageTuple percentage, List<LineSummary> lineSummaries) {
-        final BigDecimal ZERO = new BigDecimal("0.00");
-
-        return lineSummaries.stream()
-                .map(lineSummary -> (VatAmountSummary) lineSummary)
-                .reduce(new VatAmountSummary(percentage, ZERO, ZERO, ZERO), VatAmountSummary::add);
+        return calculationsHelper.calculateInvoice();
     }
 
     public static class NoRegistrationInOriginCountryException extends RuntimeException {

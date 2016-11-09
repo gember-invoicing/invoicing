@@ -1,7 +1,7 @@
 package nl.marcenschede.invoice.eventProcessors;
 
 import nl.marcenschede.invoice.core.functional.InvoiceCreationEvent;
-import nl.marcenschede.invoice.core.functional.InvoiceData;
+import nl.marcenschede.invoice.core.functional.InvoiceDataImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ public class InvoiceCreatedEventProcessorTest {
                 new InvoiceCreatedEventProcessor(consumer1);
         invoiceCreatedEventProcessor.addConsumer(consumer2);
 
-        InvoiceCreationEvent event = new InvoiceCreationEvent(new InvoiceData(), 12345L, null);
+        InvoiceCreationEvent event = new InvoiceCreationEvent(new InvoiceDataImpl(), 12345L, null);
 
         invoiceCreatedEventProcessor.accept(event);
 

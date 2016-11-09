@@ -2,7 +2,7 @@ package nl.marcenschede.invoice.core.functional;
 
 import nl.marcenschede.invoice.core.InvoiceTotals;
 
-public class InvoiceCreationEvent extends InvoiceData {
+public class InvoiceCreationEvent extends InvoiceDataImpl {
 
     private InvoiceTotals invoiceTotals;
     private Long invoiceNumber;

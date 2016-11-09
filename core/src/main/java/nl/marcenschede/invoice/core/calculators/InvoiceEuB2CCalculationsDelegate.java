@@ -1,15 +1,19 @@
 package nl.marcenschede.invoice.core.calculators;
 
 import nl.marcenschede.invoice.core.*;
+import nl.marcenschede.invoice.core.tariffs.CountryTariffPeriodPercentageTuple;
+import nl.marcenschede.invoice.core.tariffs.VatRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
 
+import static nl.marcenschede.invoice.core.BigDecimalHelper.ZERO;
+
 public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegate {
 
-    public InvoiceEuB2CCalculationsDelegate(Invoice invoice) {
-        super(invoice);
+    public InvoiceEuB2CCalculationsDelegate(Invoice invoice, VatRepository vatRepository) {
+        super(invoice, vatRepository);
     }
 
     @Override
@@ -25,6 +29,11 @@ public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegat
         return lineSummaries.stream()
                 .map(VatAmountSummary::getAmountExclVat)
                 .reduce(ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public BigDecimal getTotalInvoiceAmountExclVatOnTotals(List<LineSummary> lineSummaries, Function<? super InvoiceLine, VatAmountSummary> vatCalculator) {
+        return ZERO;
     }
 
     @Override
@@ -47,4 +56,10 @@ public class InvoiceEuB2CCalculationsDelegate extends InvoiceCalculationsDelegat
                 destinationCountry : CountryOfOriginHelper.getOriginCountry(invoice);
     }
 
+    @Override
+    public CountryTariffPeriodPercentageTuple createCountryTariffPeriodPercentageTupleForCalcationStratery(
+            CountryTariffPeriodPercentageTuple countryTariffPeriodPercentageTuple) {
+
+        return countryTariffPeriodPercentageTuple;
+    }
 }
