@@ -29,6 +29,25 @@ Feature: As a salesman I want to deliver goods and services to customers in othe
       | 806.00             | 703.27           | 102.73         | 7.00          | 6.93      | 99.07       | 106.00      |
       | 806.00             | 703.27           | 102.73         | 0.00          | 0.00      | 100.00      | 100.00      |
 
+  Scenario Outline: Invoice goods to a customer in another EU country (NL > DE) on totals, business
+    Given the company has VAT id "DE0123456789B01" in "DE"
+    And A customer without a validated VAT id and default country is "NL"
+    And Country of origin is "NL"
+    And Country of destination is "DE"
+    When A "business" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "<totalAmountInclVat>"
+    And The total amount excluding VAT is "<totalAmountExVat>"
+    And The total amount VAT is "<totalAmountVat>"
+    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>" for VAT, "<amountExVat>" for exVAT and "<amountInVat>" for inVAT
+
+    Examples:
+      | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat | amountExVat | amountInVat |
+      | 805.97             | 703.25           | 102.72         | 19.00         | 95.79     | 504.18      | 599.97      |
+      | 805.97             | 703.25           | 102.72         | 7.00          | 6.93      | 99.07       | 106.00      |
+      | 805.97             | 703.25           | 102.72         | 0.00          | 0.00      | 100.00      | 100.00      |
+
+
+
   Scenario Outline: Invoice goods to a B2C customer in another EU country (BE > DE) on totals
     Given the company has VAT id "BE0123456789B01" in "BE"
     And the company has VAT id "DE0123456789B01" in "DE"
@@ -46,6 +65,26 @@ Feature: As a salesman I want to deliver goods and services to customers in othe
       | 806.00             | 703.27           | 102.73         | 19.00         | 95.80     | 504.20      | 600.00      |
       | 806.00             | 703.27           | 102.73         | 7.00          | 6.93      | 99.07       | 106.00      |
       | 806.00             | 703.27           | 102.73         | 0.00          | 0.00      | 100.00      | 100.00      |
+
+  Scenario Outline: Invoice goods to a B2C customer in another EU country (BE > DE) on totals, business
+    Given the company has VAT id "BE0123456789B01" in "BE"
+    And the company has VAT id "DE0123456789B01" in "DE"
+    And A customer without a validated VAT id and default country is "NL"
+    And Country of origin is "BE"
+    And Country of destination is "DE"
+    When A "business" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "<totalAmountInclVat>"
+    And The total amount excluding VAT is "<totalAmountExVat>"
+    And The total amount VAT is "<totalAmountVat>"
+    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>" for VAT, "<amountExVat>" for exVAT and "<amountInVat>" for inVAT
+
+    Examples:
+      | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat | amountExVat | amountInVat |
+      | 805.97             | 703.25           | 102.72         | 19.00         | 95.79     | 504.18      | 599.97      |
+      | 805.97             | 703.25           | 102.72         | 7.00          | 6.93      | 99.07       | 106.00      |
+      | 805.97             | 703.25           | 102.72         | 0.00          | 0.00      | 100.00      | 100.00      |
+
+
 
   Scenario Outline: Invoice goods to a B2C customer in another EU country (BE > NL) on totals and destination is not given
     Given the company has VAT id "BE0123456789B01" in "BE"
