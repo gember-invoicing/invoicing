@@ -12,6 +12,8 @@ public interface Invoice {
 
     void setCustomer(Customer customer);
 
+    InvoiceType getInvoiceType();
+
     void setInvoiceType(InvoiceType invoiceType);
 
     Optional<String> getCountryOfOrigin();

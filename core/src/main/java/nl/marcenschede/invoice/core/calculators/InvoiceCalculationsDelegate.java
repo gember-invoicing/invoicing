@@ -87,29 +87,54 @@ public abstract class InvoiceCalculationsDelegate {
                                 optionalListEntry.getValue())));
     }
 
-    private Map<CountryTariffPeriodPercentageTuple, VatAmountSummary> getVatAmountSummaryPerPercentageOnSubTotals(List<LineSummary> lineSummaries) {
+    private Map<CountryTariffPeriodPercentageTuple,
+            VatAmountSummary> getVatAmountSummaryPerPercentageOnSubTotals(List<LineSummary> lineSummaries) {
 
-        Map<CountryTariffPeriodPercentageTuple, List<LineSummary>> mapOfInvoiceLinesPerVatPercentage = getMapOfCountryTariffPeriodPercentageTuples(lineSummaries);
+        Map<CountryTariffPeriodPercentageTuple, List<LineSummary>> mapOfInvoiceLinesPerVatPercentage =
+                getMapOfCountryTariffPeriodPercentageTuples(lineSummaries);
 
         return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
-                        optionalListEntry -> {
-                            BigDecimal totalInclVat = optionalListEntry.getValue().stream()
-                                    .map(VatAmountSummary::getAmountInclVat)
-                                    .reduce(ZERO, BigDecimal::add);
+                        optionalListEntry ->
+                                invoice.getInvoiceType() == InvoiceType.CONSUMER ?
+                                        calculateVatAmountSummaryForConsumerInvoice(optionalListEntry) :
+                                        calculateVatAmountSummaryForBusinessInvoice(optionalListEntry)));
+    }
 
-                            BigDecimal numerator = optionalListEntry.getKey().getPercentage();
-                            BigDecimal denominator = new BigDecimal("100.00")
-                                    .add(optionalListEntry.getKey().getPercentage());
-                            BigDecimal factor = numerator.divide(denominator, 10, BigDecimal.ROUND_HALF_UP);
+    private VatAmountSummary calculateVatAmountSummaryForBusinessInvoice(Map.Entry<CountryTariffPeriodPercentageTuple, List<LineSummary>> optionalListEntry) {
+        BigDecimal totalExclVat = optionalListEntry.getValue().stream()
+                .map(VatAmountSummary::getAmountExclVat)
+                .reduce(ZERO, BigDecimal::add);
 
-                            BigDecimal totalVat = totalInclVat.multiply(factor).setScale(2, BigDecimal.ROUND_HALF_UP);
-                            BigDecimal totalExVat = totalInclVat.subtract(totalVat);
+        BigDecimal numerator = optionalListEntry.getKey().getPercentage();
+        BigDecimal denominator = new BigDecimal("100.00");
+        BigDecimal totalVat = totalExclVat
+                .multiply(numerator)
+                .divide(denominator, 2, BigDecimal.ROUND_HALF_UP);
 
-                            return new VatAmountSummary(
-                                    optionalListEntry.getKey(),
-                                    totalVat, totalExVat, totalInclVat);
-                        }));
+        BigDecimal totalInclVat = totalExclVat.add(totalVat);
+
+        return new VatAmountSummary(
+                optionalListEntry.getKey(),
+                totalVat, totalExclVat, totalInclVat);
+    }
+
+    private VatAmountSummary calculateVatAmountSummaryForConsumerInvoice(Map.Entry<CountryTariffPeriodPercentageTuple, List<LineSummary>> optionalListEntry) {
+        BigDecimal totalInclVat = optionalListEntry.getValue().stream()
+                .map(VatAmountSummary::getAmountInclVat)
+                .reduce(ZERO, BigDecimal::add);
+
+        BigDecimal numerator = optionalListEntry.getKey().getPercentage();
+        BigDecimal denominator = new BigDecimal("100.00").add(optionalListEntry.getKey().getPercentage());
+        BigDecimal totalVat = totalInclVat
+                .multiply(numerator)
+                .divide(denominator, 2, BigDecimal.ROUND_HALF_UP);
+
+        BigDecimal totalExVat = totalInclVat.subtract(totalVat);
+
+        return new VatAmountSummary(
+                optionalListEntry.getKey(),
+                totalVat, totalExVat, totalInclVat);
     }
 
     private Map<CountryTariffPeriodPercentageTuple, List<LineSummary>> getMapOfCountryTariffPeriodPercentageTuples(List<LineSummary> lineSummaries) {

@@ -28,6 +28,24 @@ Feature: As a salesman I want to sell and invoice to local B2C customers with on
       | 806.00             | 695.87           | 110.13         | 6.00          | 6.00      | 100.00      | 106.00      |
       | 806.00             | 695.87           | 110.13         | 0.00          | 0.00      | 100.00      | 100.00      |
 
+  Scenario Outline: Deliver goods in primary country (NL > NL) business invoice
+    Given A customer without a validated VAT id and default country is "NL"
+    And Country of origin is "NL"
+    And Country of destination is "NL"
+    When A "business" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "<totalAmountInclVat>"
+    And The total amount excluding VAT is "<totalAmountExVat>"
+    And The total amount VAT is "<totalAmountVat>"
+    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>" for VAT, "<amountExVat>" for exVAT and "<amountInVat>" for inVAT
+
+    Examples:
+      | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat | amountExVat | amountInVat |
+      | 805.97             | 695.84           | 110.13         | 21.00         | 104.13    | 495.84      | 599.97      |
+      | 805.97             | 695.84           | 110.13         | 6.00          | 6.00      | 100.00      | 106.00      |
+      | 805.97             | 695.84           | 110.13         | 0.00          | 0.00      | 100.00      | 100.00      |
+
+
+
   Scenario Outline: Deliver goods in a secondary EU country with vat registration to a local B2C customer (BE > BE) on totals
     Given A customer without a validated VAT id and default country is "BE"
     And the company has VAT id "BE12345" in "BE"

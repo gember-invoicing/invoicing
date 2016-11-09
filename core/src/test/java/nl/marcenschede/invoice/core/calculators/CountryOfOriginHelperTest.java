@@ -37,6 +37,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public InvoiceType getInvoiceType() {
+                return null;
+            }
+
+            @Override
             public void setInvoiceType(InvoiceType invoiceType) {
 
             }
@@ -152,6 +157,11 @@ public class CountryOfOriginHelperTest {
             }
 
             @Override
+            public InvoiceType getInvoiceType() {
+                return null;
+            }
+
+            @Override
             public void setInvoiceType(InvoiceType invoiceType) {
 
             }
@@ -264,6 +274,11 @@ public class CountryOfOriginHelperTest {
             @Override
             public void setCustomer(Customer customer) {
 
+            }
+
+            @Override
+            public InvoiceType getInvoiceType() {
+                return null;
             }
 
             @Override

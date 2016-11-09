@@ -47,6 +47,11 @@ public class InvoiceImpl implements Invoice {
     }
 
     @Override
+    public InvoiceType getInvoiceType() {
+        return invoiceType;
+    }
+
+    @Override
     public void setInvoiceType(InvoiceType invoiceType) {
 
         this.invoiceType = invoiceType;
